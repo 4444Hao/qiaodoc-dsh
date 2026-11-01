@@ -1,0 +1,9 @@
+{
+  "name": "qmr-document-smoke-model",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "exports": { ".": "./index.js", "./package.json": "./package.json" },
+  "engines": { "dsh": "0.2.1-rc.5" },
+  "dsh": { "bundle": { "patch": "./cordis.patch.yml" } }
+}

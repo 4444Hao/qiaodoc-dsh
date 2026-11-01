@@ -1,6 +1,7 @@
-url: https://github.com/joeseesun/qiaomu-reader-dsh
-name: joeseesun/qiaomu-reader-dsh
+# Draft only; not submitted to a marketplace.
+url: https://github.com/4444Hao/qiaodoc-dsh
+name: 4444Hao/qiaodoc-dsh
 category: docs
 description:
-  en: Read EPUB, PDF, TXT, Markdown and HTML with speech, vocabulary, notes and native AI sessions.
-  zh: EPUB、PDF、TXT、Markdown 和 HTML 阅读器，支持朗读、生词本、笔记与原生 AI 伴读。
+  en: Read documents beside native DSH chats, discuss selected passages, and return through document history.
+  zh: 在 DSH 原生对话旁阅读文档、解释翻译选段，通过文档历史返回原会话。

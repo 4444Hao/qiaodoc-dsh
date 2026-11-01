@@ -1,6 +1,6 @@
 {
-  "title": "Qiaomu Reader",
-  "description": "Read EPUB, PDF, TXT, Markdown and HTML with speech, vocabulary, notes and native AI sessions.",
+  "title": "Document history",
+  "description": "Read and discuss documents beside native conversations; browse history by format and return to existing chats. Supports PDF, TXT, Markdown and HTML.",
   "catalog": {
     "all": "All books",
     "reading": "Reading",

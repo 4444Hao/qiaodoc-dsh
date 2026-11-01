@@ -21,6 +21,10 @@ import { sendAnkiEntry } from './anki.js';
 import { vocabularyMarkdown } from '../core/vocabulary.js';
 import { searchBooks, downloadBook } from './discovery.js';
 import { TypertRemoteService, Remote } from '@deepseek-ai/dsh-typert-protocol';
+import { importSessionDocument } from './session-document.js';
+import { createPastedDocument } from './pasted-document.js';
+import { READER_REMOTE_METHODS } from '../core/reader-remotes.js';
+import { readDocumentHistory, updateDocumentHistory } from '../core/document-history.js';
 
 /** 书库相对工作区根目录的文件夹名。 */
 export const LIBRARY_FOLDER = '乔木阅读';
@@ -403,6 +407,18 @@ export function apply(ctx, config = {}) {
    * 每个方法都返回可 JSON 序列化的结果，失败时抛带原因的 Error。
    */
   const api = {
+    async documentHistory() {
+      return readDocumentHistory(await readJson(path.join(pathsOf().base, 'document-history.json'), { version: 1, entries: [] }));
+    },
+    async recordDocumentHistory(request) {
+      const file = path.join(pathsOf().base, 'document-history.json');
+      return serializeLibrary(file, async () => {
+        const previous = await api.documentHistory();
+        const next = updateDocumentHistory(previous, request, Date.now());
+        await writeTextAtomic(file, JSON.stringify(next, null, 2));
+        return next;
+      });
+    },
     speechAudio,
     speechVoices,
     searchBooks: request => searchBooks(request.query),
@@ -780,6 +796,22 @@ export default class ReaderService extends TypertRemoteService {
     super(ctx, 'qiaomuReader');
     this.api = apply(ctx, config);
     this.companionContexts = new Map();
+    ctx.inject(['sessionQuery'], (scope) => {
+      scope.effect(() => {
+        const creator = request => createPastedDocument(scope, request);
+        this.pastedDocumentCreator = creator;
+        return () => { if (this.pastedDocumentCreator === creator) this.pastedDocumentCreator = null; };
+      }, 'qiaomu-reader: pasted workspace documents');
+    });
+    ctx.inject(['sessionQuery', 'attachments'], (scope) => {
+      scope.effect(() => {
+        const importer = request => importSessionDocument(scope, request, (ref, bytes) => this.api.import({
+          filename: ref.name, base64: bytes.toString('base64'), source: 'conversation',
+        }));
+        this.sessionDocumentImporter = importer;
+        return () => { if (this.sessionDocumentImporter === importer) this.sessionDocumentImporter = null; };
+      }, 'qiaomu-reader: verified session documents');
+    });
     ctx.inject(['systemPrompt'], (scope) => {
       scope.systemPrompt.context({
         name: 'qiaomu-reader:reading', order: 9500, interpolate: false,
@@ -790,7 +822,17 @@ export default class ReaderService extends TypertRemoteService {
 
   info() { return this.api.info(); }
   library() { return this.api.library(); }
+  documentHistory() { return this.api.documentHistory(); }
+  recordDocumentHistory(request) { return this.api.recordDocumentHistory(request); }
   importBook(request) { return this.api.import(request); }
+  createPastedDocument(request) {
+    if (!this.pastedDocumentCreator) throw new Error('当前宿主的会话工作区服务尚未就绪');
+    return this.pastedDocumentCreator(request);
+  }
+  importSessionDocument(request) {
+    if (!this.sessionDocumentImporter) throw new Error('当前宿主不支持会话文档读取，请使用本地文档入口');
+    return this.sessionDocumentImporter(request);
+  }
   removeBook(request) { return this.api.remove(request.bookId); }
   restoreBook(request) { return this.api.restore(request.bookId); }
   speechVoices() { return this.api.speechVoices(); }
@@ -825,7 +867,7 @@ export default class ReaderService extends TypertRemoteService {
   }
 }
 
-for (const name of ['info', 'library', 'importBook', 'removeBook', 'restoreBook', 'speechVoices', 'speechAudio', 'sendToAnki', 'searchBooks', 'downloadBook', 'loadState', 'saveState', 'readBookBytes', 'highlights', 'exportNotes', 'setReadingContext']) {
+for (const name of READER_REMOTE_METHODS) {
   Remote(name)(ReaderService.prototype[name], {
     name, private: false, static: false,
     addInitializer(fn) { fn.call(Object.create(ReaderService.prototype)); },

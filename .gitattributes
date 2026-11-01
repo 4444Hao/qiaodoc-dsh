@@ -1,0 +1,3 @@
+# Preserve document fixture bytes and PDF cross-reference offsets on Windows.
+*.pdf binary
+*.epub binary

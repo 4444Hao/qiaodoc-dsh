@@ -1,12 +1,12 @@
 {
   "name": "qiaomu-reader-dsh",
-  "version": "1.1.2",
+  "version": "1.2.0-dev.2",
   "private": true,
   "type": "module",
   "engines": {
     "dsh": "0.2.1-rc.2 || 0.2.1-rc.3 || 0.2.1-rc.4 || 0.2.1-rc.5"
   },
-  "description": "乔木阅读：DSH 的 EPUB、PDF、TXT、Markdown、HTML 阅读器，支持朗读、生词本、阅读笔记与原生 AI 伴读。",
+  "description": "DSH 对话内文档阅读与选段交互，按格式查看文档历史并返回原对话。",
   "exports": {
     ".": "./index.js",
     "./index.js": "./index.js",
@@ -31,11 +31,18 @@
     "books": "node scripts/make-starter-books.mjs",
     "resources": "node scripts/generate-pdf-resources.mjs",
     "prepack": "npm run build && node scripts/verify-package.mjs",
-    "check": "npm run build && npm test && node scripts/verify-package.mjs"
+    "check": "npm run build && npm test && node scripts/verify-package.mjs",
+    "dev:check": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/local-test.ps1 -Action Check",
+    "dev:prepare": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/local-test.ps1 -Action Prepare",
+    "dev:local": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/local-test.ps1 -Action Serve",
+    "dev:browser": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/local-test.ps1 -Action Browser",
+    "test:browser": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/local-test.ps1 -Action Smoke",
+    "dev:desktop": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/install-desktop.ps1",
+    "dev:desktop:rollback": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/install-desktop.ps1 -Rollback"
   },
   "meta": {
-    "title": "乔木阅读",
-    "description": "乔木阅读：DSH 的 EPUB、PDF、TXT、Markdown、HTML 阅读器，支持朗读、生词本、阅读笔记与原生 AI 伴读。"
+    "title": "文档历史",
+    "description": "DSH 对话内文档阅读与选段交互，按格式查看文档历史并返回原对话。"
   },
   "license": "GPL-3.0-only",
   "devDependencies": {
@@ -54,8 +61,8 @@
       ]
     },
     "meta": {
-      "title": "乔木阅读",
-      "description": "乔木阅读：DSH 的 EPUB、PDF、TXT、Markdown、HTML 阅读器，支持朗读、生词本、阅读笔记与原生 AI 伴读。"
+      "title": "文档历史",
+      "description": "DSH 对话内文档阅读与选段交互，按格式查看文档历史并返回原对话。"
     }
   },
   "dependencies": {
@@ -77,11 +84,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/joeseesun/qiaomu-reader-dsh.git"
+    "url": "https://github.com/4444Hao/qiaodoc-dsh.git"
   },
-  "homepage": "https://github.com/joeseesun/qiaomu-reader-dsh#readme",
+  "homepage": "https://github.com/4444Hao/qiaodoc-dsh#readme",
   "bugs": {
-    "url": "https://github.com/joeseesun/qiaomu-reader-dsh/issues"
+    "url": "https://github.com/4444Hao/qiaodoc-dsh/issues"
   },
   "keywords": [
     "dsh-plugin",

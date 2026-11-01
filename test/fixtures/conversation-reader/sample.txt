@@ -1,0 +1,9 @@
+第一章 文档与讨论
+
+QMR-TXT-A: One document may belong to several conversations.
+同一份文档可以在不同会话中讨论，打开原文不应自动发送消息。
+
+第二章 阅读位置
+
+QMR-TXT-B: Opening another document keeps the current conversation.
+切换文档后仍然在当前会话，关闭原文后应保留阅读进度。

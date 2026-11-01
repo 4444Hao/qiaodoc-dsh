@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "kind": "project-skill-provenance",
+  "maintainedManually": true,
+  "recordedOn": "2026-10-31",
+  "source": "https://github.com/oh-my-dsh/dsh-plugin-upgrade-skill",
+  "commit": "92afb64abf71f36a4bbd991ac9a29ad39a265db9",
+  "license": {
+    "spdx": "MIT",
+    "path": ".agents/skills/LICENSE.dsh-plugin-upgrade-skill",
+    "sha256": "dc5106aeb5ed2e032eeae5ad2db98e7f348249e95888970403e503cc73a5397d"
+  },
+  "skills": {
+    "plugin-runtime-debug": {
+      "path": ".agents/skills/plugin-runtime-debug",
+      "sourcePath": "skills/plugin-runtime-debug",
+      "filesSha256": {
+        "README.md": "7a66e445e123b963c2b381857761b2384634c684085accf3454071202408726c",
+        "references/browser-forensics.md": "96f5c2edcbed25df661334badd847ca76069c3b46eff63e26dcfc0df3b9e80f7",
+        "SKILL.md": "40e43b5efa1f893579e4ec7dcfcb566d1f538993d0261339beb864a7259a68bf"
+      }
+    },
+    "plugin-test": {
+      "path": ".agents/skills/plugin-test",
+      "sourcePath": "skills/plugin-test",
+      "filesSha256": {
+        "references/docker-release-smoke.md": "323748241b0db635978edaf5832ce0e883b36c61b9f9ec7df1c88a424915271a",
+        "references/README.md": "73be09bda187a1cc8d97531ca92451579a5b1bcaee60943866dc8fd171a9dcd7",
+        "references/version-migration-testing.md": "0781b4bc72347c91c5805d98ec54c26cdc9948966480dfd7b1bfd43f43475e2d",
+        "scripts/container-runner.mjs": "e956c565ee9234764de537cfc8d6bfb60754c16bae056aee2f90be89aef74f18",
+        "scripts/container-runner.test.mjs": "a8d18ecdd9fa33f1f9558de0f1557f2bce9732d9459e5919455969642a4af6fe",
+        "scripts/docker-release-smoke.mjs": "bc7c1458b7e083daa72d0d546943cf8b53041126436e14618e3ff92de70c2397",
+        "scripts/docker-release-smoke.test.mjs": "ee95c53d3d8860791c11522d0ae9675318a1d493070e606349cc824e4a4bdf95",
+        "SKILL.md": "6b346e979d927b79b00227b5598f5eadffb40e8c6db4b387c9eefd84a32c6da2"
+      }
+    }
+  }
+}

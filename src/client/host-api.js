@@ -10,7 +10,11 @@ export function remoteHostApi(ctx) {
   return {
     info: () => call('info'),
     library: () => call('library'),
+    documentHistory: () => call('documentHistory'),
+    recordDocumentHistory: (request) => call('recordDocumentHistory', request),
+    createPastedDocument: (request) => call('createPastedDocument', request),
     import: (request) => call('importBook', request),
+    importSessionDocument: (request) => call('importSessionDocument', request),
     remove: (bookId) => call('removeBook', { bookId }),
     restore: (bookId) => call('restoreBook', { bookId }),
     speechVoices: () => call('speechVoices'),

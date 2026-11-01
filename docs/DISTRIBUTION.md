@@ -1,4 +1,16 @@
-# 分发与目录资料
+# QiaoDoc 分发与目录资料
+
+更新日期：2026-11-01。
+
+- 独立仓库：[4444Hao/qiaodoc-dsh](https://github.com/4444Hao/qiaodoc-dsh)。
+- 当前仅迁移源码与固定验收标签 `acceptance-1.2.0-dev.2`，未发布本项目的稳定版、npm 包或市场条目。
+- 内部安装包名保留 `qiaomu-reader-dsh`；本地构建与安装见 [测试工作流](LOCAL-TEST-WORKFLOW.md)。
+- [marketplace-entry.yml](marketplace-entry.yml) 为当前项目的资料草稿，未提交。
+- [screenshots.json](../screenshots.json) 中仍是上游历史截图，不代表当前主界面；正式发布前需替换并重新核验。
+
+## 上游历史资料
+
+下列资料仅说明上游的渠道与准备过程，不代表 QiaoDoc 已发布或收录。
 
 - 仓库：https://github.com/joeseesun/qiaomu-reader-dsh
 - 安装渠道：GitHub Releases 的预构建 tgz；未发布 npm。

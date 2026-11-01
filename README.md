@@ -1,66 +1,69 @@
-# 乔木阅读 · DeepSeek Harness
+# 乔豆文解 · QiaoDoc for DeepSeek Harness
 
-> v1.1.2：DeepSeek Harness **0.2.1-rc.3** 兼容更新。[本次验证范围](docs/RC3-COMPATIBILITY.md)。
+在对话中阅读、理解文档。
 
-在 Harness 中阅读、划线、听书、记生词，使用宿主原生 AI 会话讨论正文。
+当前固定验收候选为 `1.2.0-dev.2`，标签 `acceptance-1.2.0-dev.2`。项目自 2026 年 11 月起在 [4444Hao/qiaodoc-dsh](https://github.com/4444Hao/qiaodoc-dsh) 独立维护，基于 joeseesun 开发和维护的 [乔木阅读 DSH](https://github.com/joeseesun/qiaomu-reader-dsh)，并非其官方后续版本。目标运行时为 Windows 桌面版附带的 DSH **0.2.1-rc.5**，尚未发布稳定版。
 
-![真实 DSH 中的阅读和生词本](docs/qa/adaptation-vocabulary.png)
+已完成 101 项自动测试与 12 项隔离浏览器回归；日用桌面及真实模型仍需用户验收。范围、构建摘要与待验收项目见 [固定验收候选](docs/ACCEPTANCE-CANDIDATE.md)。为兼容现有安装，内部插件包名仍为 `qiaomu-reader-dsh`，界面入口仍为“文档历史”。
 
-图：1.1.0 预构建发布包，macOS 上的隔离 DSH Web profile；生词释义由测试人员输入，截图不代表模型回答已验收。
-
-- EPUB、PDF、TXT、Markdown / HTML 导入；UTF-8、UTF-16 BOM 与 GB18030 文本解码。
-- 从书库移除后保留原副本、进度、划线、生词和 Markdown 笔记，可恢复或重新导入。
-- 浏览器系统语音与 macOS 宿主语音：跨章朗读、暂停续读、音色/速度、跟随和回到朗读处。
-- 选区查词卡复用 Harness 原生会话；生词保留上下文与原文回跳，可导出 Markdown，可选 AnkiConnect。
-- Gutenberg 搜索、EPUB 下载校验、已拥有提示；大书库窗口渲染。
-
-## 安装预构建发布包
-
-从 [v1.1.2 Release](https://github.com/joeseesun/qiaomu-reader-dsh/releases/tag/v1.1.2) 下载 `qiaomu-reader-dsh-1.1.2.tgz` 和 `SHA256SUMS`，校验后安装到你选择的 profile：
-
-```sh
-shasum -a 256 -c SHA256SUMS
-dsh plugin --profile YOUR_PROFILE add /absolute/path/qiaomu-reader-dsh-1.1.2.tgz
-```
-
-`YOUR_PROFILE` 需要替换为目标 profile。macOS 桌面版请使用应用自带 CLI：`/Applications/DeepSeek Harness.app/Contents/Resources/runtime/cli/bin/dsh`。不要把隔离测试配置直接覆盖日用配置。
-
-实测环境：macOS、应用自带 DSH 0.2.1-rc.3、独立 Web profile。桌面日用 profile 使用本目录链接；该桌面进程尚未重载验收。其他系统、实体手机和平板未验收。详细记录在 [适配状态](docs/READER-ADAPTATION.md)。
+在原生对话中打开文件，右侧阅读原文；选段可解释、翻译、复制或加入当前输入框。侧栏“文档历史”只按格式列出对话中实际打开的文件，点击返回原会话和原文位置。
 
 ## 使用
 
-打开左侧「乔木阅读」，导入书籍。选中文字可划线、查词或交给 AI；右上角可打开朗读、生词本、搜索与伴读。书目更多菜单中的「从书库移除」保留全部阅读文件，在「已移除书籍」中恢复。
+1. 进入已有 DSH 对话，或由用户在 DSH 中创建普通对话。
+2. 点击对话顶部“打开原文”，选择消息文档、此前打开的文件、本地文件或工作区路径；也可选择“粘贴文字”。
+3. 右侧独立阅读；解释/翻译向当前会话提交选段与来源，询问 AI 只追加引用，用户编辑后发送。
+4. 从左侧“文档历史”返回此前的对话与原文。插件不从文档创建新对话。
 
-默认书库在宿主工作目录下的 `乔木阅读/`，由 `workspaceRoot` 配置固定；书籍、状态、生成的笔记分别在 `books/`、`state/`、`notes/`。更新笔记只替换受管理区块，保留手写文字。不要删除这些目录来卸载插件。
+历史按 PDF、TXT、Markdown、HTML 分组，只显示有记录的格式。同一文档在不同会话中分别记录。只上传未打开的文件、旧书库示例或旧导入条目不会自动加入历史；从本版开始登记，不扫描所有既往会话补造记录。
 
-AI 需要用户在 Harness 配置模型。查词打开独立原生会话并提供引用上下文，点击「生成解释」后发送；可直接手填释义。Anki 需要在本机安装并运行 AnkiConnect，默认使用 `Default` 牌组的 `Basic` 笔记类型及 `Front` / `Back` 字段。
+独立书库、封面、找书、导入书籍、阅读状态筛选、朗读、生词本及伴读入口已从主界面移除。旧书库、划线、笔记与会话数据保留，存储/解析后端暂保留兼容代码。
 
-## 数据与联网
+## 粘贴文字
 
-阅读副本和结构化状态保存在本机，浏览器保留离线缓存。书源搜索/下载访问 `www.gutenberg.org`；浏览器语音使用运行环境所提供的声音，其联网行为由该环境决定。macOS 语音通过 `/usr/bin/say` 本地合成，临时音频随请求清理。只有点击发送到 Anki 才访问固定本机端口 `127.0.0.1:8765`。AI 上下文交给用户选择的 Harness 模型，沿用宿主账号、工具与授权机制；本插件不搬迁原版 AI 密钥。
+在“打开原文 → 粘贴文字”中粘贴内容，确认文件名与格式后点击“保存并打开”。默认 TXT，可选 Markdown；文件保存为 UTF-8，位于 **当前会话实际工作区/粘贴文档/**，不是插件书库目录。打开成功后登记历史，并保留在该对话的文件列表中。
 
-## 当前边界
+自动名称取首个非空行的前 24 个字符及本地时间，例如 `实验方法_20261101-143025.txt`；保存前可修改名称。重名添加 `_2`、`_3`，不覆盖原文件。每次粘贴限 2 MiB；不做 AI 命名、排版或格式猜测。Markdown 只渲染已有标记，不恢复网页富文本样式。
 
-本轮交付阅读/书库的第一阶段。Kindle 双模式传书、乔木书库激活接入、原版云端/本地模型 TTS 服务仍需后续宿主适配。MOBI、FB2、漫画不在本版支持范围。分页页码随窗口和排版变化，不宣称全书稳定页码。AI 实际回答、真实 Anki 卡片与 Kindle 设备阅读分别未验收。
+此操作不新建对话、不发送消息、不更改聊天草稿，也不监听系统剪贴板。保存失败保留输入供修改；若保存后打开失败，会提示已保存的文件路径。刷新或切换会话前，未保存的粘贴表单内容不保证保留。
 
-若需回滚，重新安装此前已验证的包并重载 profile，先备份整个 `乔木阅读/`。旧版不认识新增的 Markdown/HTML 书籍及归档字段，不应用旧版执行书库修改。卸载插件时保留书库与浏览器缓存。
+## 本地运行与更新
 
-## 开发
-
-```sh
+```powershell
+cd D:\qiaomu-reader-dsh
 npm ci
-npm run check
-npm pack --pack-destination /tmp
+npm run dev:local
 ```
 
-保留 GPL-3.0-only；原产品稳定版对照基线为 `qiaomu-reader` 提交 `4a6e6ee1e39966f2af5d831df8b3f4c4fd387ca3`（4.9.2）。原版工作区未修改。PDF.js、Marked、parse5 及其打包依赖的许可证见 [第三方来源说明](THIRD_PARTY_NOTICES.md)；六本内置公版书保留原始来源与许可。
+另一个终端：
 
-## English
+```powershell
+npm run dev:browser
+npm run test:browser
+```
 
-Read EPUB, PDF, TXT, Markdown and HTML inside DeepSeek Harness, with recoverable library removal, speech, vocabulary, Markdown backlinks and native AI sessions. Install the **prebuilt Release tgz** with `dsh plugin --profile YOUR_PROFILE add /absolute/path/package.tgz`, then reload the selected profile. Download the prebuilt tgz and SHA256SUMS from the v1.1.2 GitHub Release; no npm publication is provided.
+隔离回归使用固定回复模型，不验证模型解读质量。测试环境与日用 profile 分开。
 
-Tested on macOS with bundled DSH 0.2.1-rc.3 in an isolated Web profile. The regular desktop process, Windows/Linux and physical mobile devices are not verified. AI replies require the user's native Harness model configuration. AnkiConnect is optional. Kindle, activated Qiaomu Library, additional TTS engines, MOBI/FB2/comics and stable whole-book pagination are outside this candidate.
+更新到桌面 DSH 试用，成功后完全退出（包括托盘）并重新打开：
 
-Books, notes and state are stored locally. Gutenberg search/download contacts Gutenberg; AI context goes to the configured Harness provider; explicit Anki export uses localhost port 8765. macOS speech uses the system `say` service. Uninstall the plugin through Harness while keeping its library files; back up the library before rollback. Licensed GPL-3.0-only.
+```powershell
+npm run dev:desktop
+# 回退上一轮安装的 reader 包：
+npm run dev:desktop:rollback
+```
 
-本次 Harness rc.5 支持范围与实测边界见 [兼容验证记录](docs/RC5-COMPATIBILITY.md)。
+详见 [本地测试工作流](docs/LOCAL-TEST-WORKFLOW.md)、[Windows 开发说明](docs/WINDOWS-DEVELOPMENT.md)、[维护记录](docs/MAINTENANCE.md)。
+
+## 数据与边界
+
+文档副本、旧状态和笔记沿用原 `乔木阅读/` 目录，新历史单独保存为 `document-history.json`。历史以会话和来源路径为键；同内容不同来源路径尚不合并。删除原会话或源文件后，记录不能自动重建它们。移除入口不删除旧数据，也不改源文件。
+
+当前附件入口支持 PDF/TXT/Markdown/HTML，64 MiB；原生右栏的 EPUB 接入、OCR、全文双语排版、跨设备同步不包含在本版。PDF 页码与页内偏移用于恢复原文；消息锚点使用 rc.5 原生聊天节点及历史加载接口。复杂排版、缩放变化或失效锚点可能影响精度，无法定位时提示，不创建新会话。
+
+AI 使用用户选择的 Harness 模型、账号和授权流程。打开文件、历史登记和返回历史本身不调用模型；右栏展示不等于模型已读取全文。真实回答质量需另行验收。
+
+## 来源与许可证
+
+本项目保留上游 Git 历史及适用版权、许可证和第三方声明。2026-10-31 至 2026-11-01 的主要修改为：改用原生会话右栏阅读与选段交互、将书库界面精简为文档历史、增加粘贴文字保存为工作区文件，以及补充 Windows 测试和安装流程。具体修改记录见 [维护记录](docs/MAINTENANCE.md)。
+
+保留 GPL-3.0-only。上游 DSH 基线为 `b549874` / 1.1.2，原产品对照基线为 `qiaomu-reader` 提交 `4a6e6ee1e39966f2af5d831df8b3f4c4fd387ca3`（4.9.2）。第三方代码及旧示例书来源见 [第三方说明](THIRD_PARTY_NOTICES.md)。上游历史能力与验收见 [原阅读功能适配记录](docs/READER-ADAPTATION.md)；它不代表本 fork 当前主界面。

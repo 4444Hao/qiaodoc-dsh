@@ -1,0 +1,55 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R 5 0 R] /Count 2 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 7 0 R >> >> /Contents 4 0 R >>
+endobj
+4 0 obj
+<< /Length 278 >>
+stream
+BT /F1 15 Tf 50 720 Td 26 TL
+(QMR-PDF-A: Document and conversation) Tj
+T* (A document can be discussed in several conversations.) Tj
+T* (Select this sentence to translate it into Chinese.) Tj
+T* (Opening a document does not send a model request.) Tj
+0 -100 Td (Page 1 / 2) Tj
+ET
+endstream
+endobj
+5 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 7 0 R >> >> /Contents 6 0 R >>
+endobj
+6 0 obj
+<< /Length 295 >>
+stream
+BT /F1 15 Tf 50 720 Td 26 TL
+(QMR-PDF-B: Independent reading position) Tj
+T* (Each conversation keeps its own reading position.) Tj
+T* (Explain why a file title is different from its identity.) Tj
+T* (Switching documents should preserve the current conversation.) Tj
+0 -100 Td (Page 2 / 2) Tj
+ET
+endstream
+endobj
+7 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+xref
+0 8
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000121 00000 n 
+0000000247 00000 n 
+0000000576 00000 n 
+0000000702 00000 n 
+0000001048 00000 n 
+trailer
+<< /Size 8 /Root 1 0 R >>
+startxref
+1118
+%%EOF

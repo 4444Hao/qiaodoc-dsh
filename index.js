@@ -9798,9 +9798,9 @@ function toZipPath(dir, href) {
 }
 function extractBody(xhtml) {
   if (typeof xhtml !== "string") return "";
-  const open = /<body\b[^>]*>/i.exec(xhtml);
-  if (!open) return xhtml;
-  const start = open.index + open[0].length;
+  const open2 = /<body\b[^>]*>/i.exec(xhtml);
+  if (!open2) return xhtml;
+  const start = open2.index + open2[0].length;
   const rest = xhtml.slice(start);
   const close = /<\/body\s*>/i.exec(rest);
   const inner = close ? rest.slice(0, close.index) : rest;
@@ -10204,13 +10204,13 @@ function normalizePath(value) {
   return out.join("/");
 }
 function dirOf2(href) {
-  const path3 = normalizePath(href);
-  const cut = path3.lastIndexOf("/");
-  return cut >= 0 ? path3.slice(0, cut + 1) : "";
+  const path4 = normalizePath(href);
+  const cut = path4.lastIndexOf("/");
+  return cut >= 0 ? path4.slice(0, cut + 1) : "";
 }
-function resolveFrom(baseDir, path3) {
-  if (!path3) return "";
-  return normalizePath(path3.startsWith("/") ? path3.slice(1) : `${baseDir}${path3}`);
+function resolveFrom(baseDir, path4) {
+  if (!path4) return "";
+  return normalizePath(path4.startsWith("/") ? path4.slice(1) : `${baseDir}${path4}`);
 }
 function endsWithPath(full, suffix) {
   if (!suffix) return false;
@@ -10349,11 +10349,11 @@ function createReaderEngine(book) {
       const current = indexOf(currentIndex);
       const raw = toText2(href).trim();
       if (!raw || EXTERNAL_SCHEME.test(raw)) return null;
-      const path3 = stripFragment(raw);
-      if (!path3) return current >= 0 ? current : null;
+      const path4 = stripFragment(raw);
+      if (!path4) return current >= 0 ? current : null;
       const currentHref = current >= 0 ? chapters[current]?.href : "";
-      const resolved = resolveFrom(dirOf2(currentHref), path3);
-      const matched = matchChapterByPath(resolved) ?? matchChapterByPath(normalizePath(path3));
+      const resolved = resolveFrom(dirOf2(currentHref), path4);
+      const matched = matchChapterByPath(resolved) ?? matchChapterByPath(normalizePath(path4));
       return matched === null ? null : matched;
     },
     
@@ -11005,8 +11005,8 @@ function safeDecode3(value) {
     return value;
   }
 }
-function dirOf3(path3) {
-  const value = String(path3 == null ? "" : path3).replace(/\\/g, "/");
+function dirOf3(path4) {
+  const value = String(path4 == null ? "" : path4).replace(/\\/g, "/");
   const at2 = value.lastIndexOf("/");
   return at2 < 0 ? "" : value.slice(0, at2 + 1);
 }
@@ -11103,7 +11103,7 @@ function parseNcxDoc(text, ncxPath) {
   return walk2(navMap);
 }
 function pickCoverHref(items, metadataNode, zip) {
-  const exists = (path3) => !!path3 && zip.has(path3);
+  const exists = (path4) => !!path4 && zip.has(path4);
   const isImage = (item) => /^image\//i.test(item.mediaType || "");
   for (const meta of metadataNode ? childrenNamed(metadataNode, "meta") : []) {
     if (String(attr2(meta, "name") || "").toLowerCase() !== "cover") continue;
@@ -11270,8 +11270,8 @@ var init_epub = __esm({
 
 // src/host/index.js
 import { createHash } from "node:crypto";
-import { mkdir, readFile as readFile2, readdir, rename, rm as rm2, stat, writeFile, copyFile } from "node:fs/promises";
-import path2 from "node:path";
+import { mkdir as mkdir2, readFile as readFile2, readdir, rename, rm as rm2, stat, writeFile, copyFile } from "node:fs/promises";
+import path3 from "node:path";
 
 // src/core/backlink.js
 function highlightLink(bookId2, highlightId) {
@@ -11509,6 +11509,185 @@ async function downloadBook(id, request = globalThis.fetch) {
 
 // src/host/index.js
 import { TypertRemoteService, Remote } from "@deepseek-ai/dsh-typert-protocol";
+
+// src/host/session-document.js
+var MAX_SESSION_DOCUMENT_BYTES = 64 * 1024 * 1024;
+async function importSessionDocument(ctx, request, persist) {
+  const { sessionId, attachmentId } = request || {};
+  if (typeof sessionId !== "string" || !sessionId || sessionId.length > 160 || typeof attachmentId !== "string" || !/^sha256:[a-f0-9]{64}$/.test(attachmentId)) throw new Error("\u65E0\u6548\u6587\u6863\u5F15\u7528");
+  const observation = await ctx.sessionQuery.observeSession(sessionId, { projectionMode: "none" });
+  let ref;
+  try {
+    if (!observation.header.cwd) throw new Error("\u627E\u4E0D\u5230\u6240\u5C5E\u4F1A\u8BDD");
+    for (const event of observation.events) {
+      if (event.type !== "user/message") continue;
+      ref = event.data?.content?.find((block) => block.type === "file" && block.attachment?.attachmentId === attachmentId)?.attachment;
+      if (ref) break;
+    }
+    if (!ref) throw new Error("\u5F53\u524D\u4F1A\u8BDD\u6CA1\u6709\u5F15\u7528\u8FD9\u4EFD\u6587\u6863");
+    ref = { ...ref };
+  } finally {
+    observation[Symbol.dispose]();
+  }
+  if (!/\.(pdf|txt|md|markdown|html?)$/i.test(ref.name || "")) throw new Error("\u6B64\u5165\u53E3\u6682\u652F\u6301 PDF\u3001TXT\u3001Markdown \u548C HTML");
+  if (!Number.isSafeInteger(ref.bytes) || ref.bytes <= 0 || ref.bytes > MAX_SESSION_DOCUMENT_BYTES) throw new Error("\u6B64\u9605\u8BFB\u5165\u53E3\u652F\u6301\u4E0D\u8D85\u8FC7 64 MiB \u7684\u6587\u6863");
+  const chunks = [];
+  let length = 0;
+  for await (const chunk of ctx.attachments.readFileStream(ref)) {
+    length += chunk.byteLength;
+    if (length > ref.bytes || length > MAX_SESSION_DOCUMENT_BYTES) throw new Error("\u6587\u6863\u5927\u5C0F\u4E0E\u8BB0\u5F55\u4E0D\u7B26");
+    chunks.push(Buffer.from(chunk));
+  }
+  if (length !== ref.bytes) throw new Error("\u6587\u6863\u5185\u5BB9\u4E0D\u5B8C\u6574");
+  return persist(ref, Buffer.concat(chunks, length));
+}
+
+// src/host/pasted-document.js
+import { mkdir, realpath, open, unlink } from "node:fs/promises";
+import path2 from "node:path";
+
+// src/core/pasted-document.js
+var MAX_PASTED_DOCUMENT_BYTES = 2 * 1024 * 1024;
+var forbidden = /[<>:"/\\|?*\u0000-\u001f\u007f]/;
+var reserved = /^(con|prn|aux|nul|com[1-9]|lpt[1-9])(?:\.|$)/i;
+function pastedDocumentFilename(name2, format) {
+  if (!["txt", "md"].includes(format)) throw new Error("\u8BF7\u9009\u62E9 TXT \u6216 Markdown \u683C\u5F0F");
+  if (typeof name2 !== "string") throw new Error("\u8BF7\u586B\u5199\u6587\u4EF6\u540D");
+  const stem = name2.trim().replace(/\.(txt|md)$/i, "");
+  if (!stem || [...stem].length > 80 || forbidden.test(stem) || /[. ]$/.test(stem) || stem.startsWith(".") || reserved.test(stem)) throw new Error("\u6587\u4EF6\u540D\u65E0\u6548\uFF1A\u8BF7\u4F7F\u7528\u4E0D\u8D85\u8FC7 80 \u4E2A\u5B57\u7B26\u7684\u666E\u901A\u540D\u79F0\uFF0C\u4E0D\u542B\u8DEF\u5F84\u6216 Windows \u7981\u7528\u5B57\u7B26");
+  return `${stem}.${format}`;
+}
+
+// src/host/pasted-document.js
+async function createPastedDocument(ctx, request) {
+  const { sessionId, text, name: name2, format } = request || {};
+  if (typeof sessionId !== "string" || !sessionId || sessionId.length > 160) throw new Error("\u65E0\u6548\u4F1A\u8BDD");
+  if (typeof text !== "string" || !text.trim()) throw new Error("\u8BF7\u5148\u7C98\u8D34\u6587\u5B57");
+  if (Buffer.byteLength(text, "utf8") > MAX_PASTED_DOCUMENT_BYTES) throw new Error("\u7C98\u8D34\u5185\u5BB9\u4E0D\u80FD\u8D85\u8FC7 2 MiB");
+  const filename = pastedDocumentFilename(name2, format);
+  const observation = await ctx.sessionQuery.observeSession(sessionId, { projectionMode: "none" });
+  let cwd;
+  try {
+    cwd = observation.header.cwd;
+  } finally {
+    observation[Symbol.dispose]();
+  }
+  if (typeof cwd !== "string" || !path2.isAbsolute(cwd)) throw new Error("\u5F53\u524D\u4F1A\u8BDD\u6CA1\u6709\u53EF\u7528\u7684\u5DE5\u4F5C\u533A\u76EE\u5F55");
+  const root = await realpath(cwd);
+  const directory = path2.join(root, "\u7C98\u8D34\u6587\u6863");
+  await mkdir(directory, { recursive: true });
+  if (await realpath(directory) !== directory) throw new Error("\u7C98\u8D34\u6587\u6863\u76EE\u5F55\u6307\u5411\u5176\u4ED6\u4F4D\u7F6E\uFF0C\u8BF7\u6539\u7528\u5DE5\u4F5C\u533A\u5185\u7684\u666E\u901A\u6587\u4EF6\u5939");
+  const stem = filename.slice(0, -(format.length + 1));
+  for (let number = 1; number <= 1e3; number++) {
+    const actualName = number === 1 ? filename : `${stem}_${number}.${format}`;
+    const filePath = path2.join(directory, actualName);
+    let file;
+    try {
+      file = await open(filePath, "wx");
+    } catch (error) {
+      if (error.code === "EEXIST") continue;
+      throw error;
+    }
+    try {
+      await file.writeFile(text, { encoding: "utf8" });
+      await file.sync();
+    } catch (error) {
+      await file.close();
+      await unlink(filePath).catch(() => {
+      });
+      throw error;
+    }
+    await file.close();
+    return { sessionId, filePath, name: actualName, format };
+  }
+  throw new Error("\u540C\u540D\u6587\u4EF6\u8FC7\u591A\uFF0C\u8BF7\u4FEE\u6539\u6587\u4EF6\u540D\u540E\u91CD\u8BD5");
+}
+
+// src/core/reader-remotes.js
+var READER_REMOTE_METHODS = [
+  "info",
+  "library",
+  "importBook",
+  "importSessionDocument",
+  "removeBook",
+  "restoreBook",
+  "speechVoices",
+  "speechAudio",
+  "sendToAnki",
+  "searchBooks",
+  "downloadBook",
+  "loadState",
+  "saveState",
+  "readBookBytes",
+  "highlights",
+  "exportNotes",
+  "setReadingContext",
+  "documentHistory",
+  "recordDocumentHistory",
+  "createPastedDocument"
+];
+
+// src/core/document-history.js
+function historyPath(value) {
+  if (typeof value !== "string" || !value || value.length > 4096 || /[\u0000\r\n]/.test(value)) throw new Error("\u65E0\u6548\u6587\u6863\u8DEF\u5F84");
+  const normalized = value.replace(/\\/g, "/");
+  return /^[a-z]:\//i.test(normalized) ? normalized.toLowerCase() : normalized;
+}
+function historyKey(sessionId, filePath) {
+  if (typeof sessionId !== "string" || !sessionId || sessionId.length > 160) throw new Error("\u65E0\u6548\u4F1A\u8BDD");
+  return JSON.stringify([sessionId, historyPath(filePath)]);
+}
+function historyFormat(filePath) {
+  const ext = filePath.split(".").pop().toLowerCase();
+  return { pdf: "PDF", txt: "TXT", md: "Markdown", markdown: "Markdown", html: "HTML", htm: "HTML" }[ext];
+}
+function readDocumentHistory(raw) {
+  if (!raw || raw.version !== 1 || !Array.isArray(raw.entries)) throw new Error("\u6587\u6863\u5386\u53F2\u7D22\u5F15\u635F\u574F\uFF0C\u539F\u6587\u4EF6\u5DF2\u4FDD\u7559");
+  for (const entry of raw.entries) {
+    if (entry.id !== historyKey(entry.sessionId, entry.filePath) || !historyFormat(entry.filePath) || typeof entry.title !== "string" || !Number.isFinite(entry.lastOpenedAt)) throw new Error("\u6587\u6863\u5386\u53F2\u8BB0\u5F55\u635F\u574F\uFF0C\u539F\u6587\u4EF6\u5DF2\u4FDD\u7559");
+  }
+  return raw;
+}
+function updateDocumentHistory(raw, request, now) {
+  const history = readDocumentHistory(raw);
+  const id = historyKey(request?.sessionId, request?.filePath);
+  const format = historyFormat(request.filePath);
+  if (!format) throw new Error("\u6B64\u683C\u5F0F\u6682\u4E0D\u652F\u6301\u6587\u6863\u5386\u53F2");
+  const old = history.entries.find((entry2) => entry2.id === id);
+  if (typeof request.title !== "string" || !request.title.trim() || request.title.length > 500) throw new Error("\u65E0\u6548\u6587\u6863\u540D\u79F0");
+  const entry = {
+    ...old,
+    id,
+    sessionId: request.sessionId,
+    filePath: request.filePath,
+    title: request.title,
+    format,
+    lastOpenedAt: !old || request.opened || request.interacted ? now : old.lastOpenedAt,
+    updatedAt: now
+  };
+  if (request.position) {
+    const { page, offset, ratio } = request.position;
+    if (page !== void 0 && (!Number.isInteger(page) || page < 1 || page > 1e5)) throw new Error("\u65E0\u6548\u9875\u7801");
+    if (offset !== void 0 && (!Number.isFinite(offset) || offset < -1 || offset > 1)) throw new Error("\u65E0\u6548\u9605\u8BFB\u4F4D\u7F6E");
+    if (ratio !== void 0 && (!Number.isFinite(ratio) || ratio < 0 || ratio > 1)) throw new Error("\u65E0\u6548\u9605\u8BFB\u4F4D\u7F6E");
+    entry.position = { ...page ? { page } : {}, ...offset !== void 0 ? { offset } : {}, ...ratio !== void 0 ? { ratio } : {} };
+  }
+  if (request.nodeKey !== void 0) {
+    if (typeof request.nodeKey !== "string" || request.nodeKey.length > 1e3) throw new Error("\u65E0\u6548\u6D88\u606F\u4F4D\u7F6E");
+    entry.nodeKey = request.nodeKey;
+  }
+  if (request.turn !== void 0) {
+    if (!Number.isInteger(request.turn) || request.turn < 1) throw new Error("\u65E0\u6548\u5BF9\u8BDD\u8F6E\u6B21");
+    entry.turn = request.turn;
+  }
+  if (request.anchorSeq !== void 0) {
+    if (!Number.isSafeInteger(request.anchorSeq) || request.anchorSeq < 0) throw new Error("\u65E0\u6548\u6D88\u606F\u5E8F\u53F7");
+    entry.anchorSeq = request.anchorSeq;
+  }
+  return { version: 1, entries: [...history.entries.filter((item) => item.id !== id), entry].sort((a3, b) => b.lastOpenedAt - a3.lastOpenedAt) };
+}
+
+// src/host/index.js
 var LIBRARY_FOLDER = "\u4E54\u6728\u9605\u8BFB";
 var STATE_VERSION = 1;
 var LIBRARY_VERSION = 1;
@@ -11553,7 +11732,7 @@ function serializeLibrary(key, run) {
 function writeTextAtomic(file, content2) {
   const previous = writeChains.get(file) ?? Promise.resolve();
   const next = previous.catch(() => void 0).then(async () => {
-    await mkdir(path2.dirname(file), { recursive: true });
+    await mkdir2(path3.dirname(file), { recursive: true });
     const temp = `${file}.tmp-${process.pid}-${Date.now().toString(36)}`;
     await writeFile(temp, content2, "utf8");
     await rename(temp, file);
@@ -11569,24 +11748,24 @@ async function readJson(file, fallback) {
     return JSON.parse(await readFile2(file, "utf8"));
   } catch (error) {
     if (error?.code === "ENOENT") return fallback;
-    throw new Error(`\u65E0\u6CD5\u8BFB\u53D6\u4E66\u5E93\u6570\u636E\uFF0C\u5DF2\u4FDD\u7559\u539F\u6587\u4EF6\uFF1A${path2.basename(file)}`, { cause: error });
+    throw new Error(`\u65E0\u6CD5\u8BFB\u53D6\u4E66\u5E93\u6570\u636E\uFF0C\u5DF2\u4FDD\u7559\u539F\u6587\u4EF6\uFF1A${path3.basename(file)}`, { cause: error });
   }
 }
 function isInside(parent, candidate) {
-  const rel = path2.relative(parent, candidate);
-  return rel === "" || !rel.startsWith("..") && !path2.isAbsolute(rel);
+  const rel = path3.relative(parent, candidate);
+  return rel === "" || !rel.startsWith("..") && !path3.isAbsolute(rel);
 }
 function safeJoin(root, ...parts) {
-  const target = path2.resolve(root, ...parts);
+  const target = path3.resolve(root, ...parts);
   if (!isInside(root, target)) throw new Error(`\u8DEF\u5F84\u8D8A\u754C\uFF1A${parts.join("/")}`);
   return target;
 }
 function fallbackRoot(config) {
   if (typeof config?.workspaceRoot === "string" && config.workspaceRoot.trim() !== "") {
-    return path2.resolve(config.workspaceRoot.trim());
+    return path3.resolve(config.workspaceRoot.trim());
   }
   const fromEnv = process.env.DSH_WORKSPACE;
-  if (typeof fromEnv === "string" && fromEnv.trim() !== "") return path2.resolve(fromEnv.trim());
+  if (typeof fromEnv === "string" && fromEnv.trim() !== "") return path3.resolve(fromEnv.trim());
   return process.cwd();
 }
 function resolveWorkspaceRoot(_ctx, config) {
@@ -11597,10 +11776,10 @@ function libraryPaths(root, config) {
   const base = safeJoin(root, folder);
   return {
     base,
-    books: path2.join(base, "books"),
-    state: path2.join(base, "state"),
-    index: path2.join(base, "library.json"),
-    notes: path2.join(base, "notes")
+    books: path3.join(base, "books"),
+    state: path3.join(base, "state"),
+    index: path3.join(base, "library.json"),
+    notes: path3.join(base, "notes")
   };
 }
 async function readLibrary(paths) {
@@ -11655,18 +11834,18 @@ async function importBook(paths, input) {
   const index = library.books.findIndex((book2) => book2.id === id);
   const previous = index >= 0 ? library.books[index] : {};
   const textLayout = index >= 0 ? previous.textLayout || 1 : input.textLayout || 2;
-  const parsed = TEXT_FORMATS.includes(format) ? parseTextBook(bytes, input.title || previous.title || path2.basename(filename, path2.extname(filename)), format, { layout: textLayout }).book : null;
-  await mkdir(paths.books, { recursive: true });
+  const parsed = TEXT_FORMATS.includes(format) ? parseTextBook(bytes, input.title || previous.title || path3.basename(filename, path3.extname(filename)), format, { layout: textLayout }).book : null;
+  await mkdir2(paths.books, { recursive: true });
   const exists = await stat(absolute).then(() => true).catch(() => false);
   if (!exists) await writeFile(absolute, bytes);
   const book = normalizeBook({
     ...previous,
     id,
     removedAt: null,
-    title: previous.title || input.title || parsed?.title || path2.basename(filename, path2.extname(filename)),
+    title: previous.title || input.title || parsed?.title || path3.basename(filename, path3.extname(filename)),
     author: previous.author || input.author || parsed?.author || "",
     format,
-    file: path2.posix.join("books", storedName),
+    file: path3.posix.join("books", storedName),
     bytes: bytes.byteLength,
     addedAt: typeof previous.addedAt === "number" ? previous.addedAt : Date.now(),
     source: input.source ?? previous.source ?? "upload",
@@ -11748,13 +11927,25 @@ function apply(ctx, config = {}) {
   const ensureFolders = async () => {
     const paths = pathsOf();
     await Promise.all([
-      mkdir(paths.books, { recursive: true }),
-      mkdir(paths.state, { recursive: true }),
-      mkdir(paths.notes, { recursive: true })
+      mkdir2(paths.books, { recursive: true }),
+      mkdir2(paths.state, { recursive: true }),
+      mkdir2(paths.notes, { recursive: true })
     ]);
     return paths;
   };
   const api = {
+    async documentHistory() {
+      return readDocumentHistory(await readJson(path3.join(pathsOf().base, "document-history.json"), { version: 1, entries: [] }));
+    },
+    async recordDocumentHistory(request) {
+      const file = path3.join(pathsOf().base, "document-history.json");
+      return serializeLibrary(file, async () => {
+        const previous = await api.documentHistory();
+        const next = updateDocumentHistory(previous, request, Date.now());
+        await writeTextAtomic(file, JSON.stringify(next, null, 2));
+        return next;
+      });
+    },
     speechAudio,
     speechVoices,
     searchBooks: (request) => searchBooks(request.query),
@@ -11770,7 +11961,7 @@ function apply(ctx, config = {}) {
     
     info() {
       const paths = pathsOf();
-      return { folder: path2.basename(paths.base), root: paths.base, version: LIBRARY_VERSION };
+      return { folder: path3.basename(paths.base), root: paths.base, version: LIBRARY_VERSION };
     },
     
     async library() {
@@ -11817,12 +12008,12 @@ function apply(ctx, config = {}) {
     async importPath(filePath) {
       if (typeof filePath !== "string" || filePath.trim() === "") throw new Error("\u5BFC\u5165\u5931\u8D25\uFF1A\u7F3A\u5C11\u6587\u4EF6\u8DEF\u5F84");
       const root = rootOf();
-      const absolute = path2.isAbsolute(filePath) ? path2.resolve(filePath) : path2.resolve(root, filePath);
+      const absolute = path3.isAbsolute(filePath) ? path3.resolve(filePath) : path3.resolve(root, filePath);
       const info = await stat(absolute).catch(() => null);
       if (info === null || !info.isFile()) throw new Error(`\u627E\u4E0D\u5230\u6587\u4EF6\uFF1A${filePath}`);
       const paths = await ensureFolders();
       const bytes = await readFile2(absolute);
-      const book = await importBook(paths, { filename: path2.basename(absolute), bytes, source: "workspace" });
+      const book = await importBook(paths, { filename: path3.basename(absolute), bytes, source: "workspace" });
       return { book, from: absolute };
     },
     
@@ -12113,6 +12304,28 @@ var ReaderService = class extends TypertRemoteService {
     super(ctx, "qiaomuReader");
     this.api = apply(ctx, config);
     this.companionContexts = /* @__PURE__ */ new Map();
+    ctx.inject(["sessionQuery"], (scope) => {
+      scope.effect(() => {
+        const creator = (request) => createPastedDocument(scope, request);
+        this.pastedDocumentCreator = creator;
+        return () => {
+          if (this.pastedDocumentCreator === creator) this.pastedDocumentCreator = null;
+        };
+      }, "qiaomu-reader: pasted workspace documents");
+    });
+    ctx.inject(["sessionQuery", "attachments"], (scope) => {
+      scope.effect(() => {
+        const importer = (request) => importSessionDocument(scope, request, (ref, bytes) => this.api.import({
+          filename: ref.name,
+          base64: bytes.toString("base64"),
+          source: "conversation"
+        }));
+        this.sessionDocumentImporter = importer;
+        return () => {
+          if (this.sessionDocumentImporter === importer) this.sessionDocumentImporter = null;
+        };
+      }, "qiaomu-reader: verified session documents");
+    });
     ctx.inject(["systemPrompt"], (scope) => {
       scope.systemPrompt.context({
         name: "qiaomu-reader:reading",
@@ -12128,8 +12341,22 @@ var ReaderService = class extends TypertRemoteService {
   library() {
     return this.api.library();
   }
+  documentHistory() {
+    return this.api.documentHistory();
+  }
+  recordDocumentHistory(request) {
+    return this.api.recordDocumentHistory(request);
+  }
   importBook(request) {
     return this.api.import(request);
+  }
+  createPastedDocument(request) {
+    if (!this.pastedDocumentCreator) throw new Error("\u5F53\u524D\u5BBF\u4E3B\u7684\u4F1A\u8BDD\u5DE5\u4F5C\u533A\u670D\u52A1\u5C1A\u672A\u5C31\u7EEA");
+    return this.pastedDocumentCreator(request);
+  }
+  importSessionDocument(request) {
+    if (!this.sessionDocumentImporter) throw new Error("\u5F53\u524D\u5BBF\u4E3B\u4E0D\u652F\u6301\u4F1A\u8BDD\u6587\u6863\u8BFB\u53D6\uFF0C\u8BF7\u4F7F\u7528\u672C\u5730\u6587\u6863\u5165\u53E3");
+    return this.sessionDocumentImporter(request);
   }
   removeBook(request) {
     return this.api.remove(request.bookId);
@@ -12191,7 +12418,7 @@ ${JSON.stringify(material)}
     return { ok: true };
   }
 };
-for (const name2 of ["info", "library", "importBook", "removeBook", "restoreBook", "speechVoices", "speechAudio", "sendToAnki", "searchBooks", "downloadBook", "loadState", "saveState", "readBookBytes", "highlights", "exportNotes", "setReadingContext"]) {
+for (const name2 of READER_REMOTE_METHODS) {
   Remote(name2)(ReaderService.prototype[name2], {
     name: name2,
     private: false,

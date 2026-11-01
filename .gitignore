@@ -9,3 +9,10 @@ coverage/
 # Local library and release scratch data
 乔木阅读/
 release/
+
+# Local agent tooling and user-generated documents
+.agents/
+.codex/
+.dsh/
+.aws/
+粘贴文档/

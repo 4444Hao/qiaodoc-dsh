@@ -1,8 +1,16 @@
 import { readFileSync, existsSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import assert from 'node:assert/strict';
+import path from 'node:path';
 const p = JSON.parse(readFileSync('package.json', 'utf8'));
-const [pack] = JSON.parse(execFileSync('npm', ['pack', '--dry-run', '--ignore-scripts', '--json'], {encoding:'utf8'}));
+// npm is a .cmd shim on Windows. Invoke npm's JS entry through Node without a shell.
+const npmCli = process.env.npm_execpath || (process.platform === 'win32'
+  ? [path.dirname(process.execPath), ...(process.env.PATH || '').split(path.delimiter)]
+    .map(dir => path.join(dir, 'node_modules/npm/bin/npm-cli.js')).find(existsSync)
+  : undefined);
+const [pack] = JSON.parse(npmCli
+  ? execFileSync(process.execPath, [npmCli, 'pack', '--dry-run', '--ignore-scripts', '--json'], {encoding:'utf8'})
+  : execFileSync('npm', ['pack', '--dry-run', '--ignore-scripts', '--json'], {encoding:'utf8'}));
 const files = new Set(pack.files.map(f => f.path));
 function check(target) {
   if (typeof target === 'object') return Object.values(target).forEach(check);

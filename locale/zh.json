@@ -1,6 +1,6 @@
 {
-  "title": "乔木阅读",
-  "description": "书库、连续朗读、生词本、笔记与原生 AI 伴读。支持 EPUB、PDF、TXT、Markdown 和 HTML。",
+  "title": "文档历史",
+  "description": "在原生对话侧栏阅读与解释文档，按格式查看历史并返回原会话。支持 PDF、TXT、Markdown 和 HTML。",
   "catalog": {
     "deleteConfirm": "从书库移除《{title}》？\n文件、进度、划线与笔记均保留，可在已移除书籍中恢复。",
     "finished": "已读完",
