@@ -24,8 +24,17 @@ function check(target) {
 check(p.exports);
 check(p.dsh.bundle.patch);
 check(p.icon || (p.name === 'qiaomu-rss-dsh' ? './lib/client.js' : './icon.svg'));
+check('./assets/qiaodoc-icon-256.png');
 assert(files.has('README.md') && files.has('LICENSE'));
+assert(files.has('docs/INSTALLATION.md'), 'Missing first-install instructions');
 const screenshots = JSON.parse(readFileSync('screenshots.json','utf8'));
 assert(Array.isArray(screenshots) && screenshots.length >= 1 && screenshots.length <= 8);
-for (const file of screenshots) assert(!file.includes('..') && !file.startsWith('/') && existsSync(file), `Invalid screenshot: ${file}`);
+assert(files.has('screenshots.json'), 'Missing screenshot manifest in package');
+for (const file of screenshots) assert(!file.includes('..') && !file.startsWith('/') && existsSync(file) && files.has(file), `Invalid or unpackaged screenshot: ${file}`);
+const readme = readFileSync('README.md', 'utf8');
+const readmeImages = [...readme.matchAll(/<img\b[^>]*\bsrc=["']([^"']+)["']/gi), ...readme.matchAll(/!\[[^\]]*\]\(([^)]+)\)/g)].map(match => match[1]);
+for (const file of readmeImages.filter(file => !/^(?:https?:|data:)/i.test(file))) {
+  assert(!file.includes('\\'), `Use forward slashes in README image paths: ${file}`);
+  check(file);
+}
 console.log(`Package verified: ${files.size} files; exports, bundle, README, license and screenshots valid.`);

@@ -5,7 +5,11 @@
 | 文档 | 用途 |
 | --- | --- |
 | [固定验收候选](ACCEPTANCE-CANDIDATE.md) | 冻结标签、构建摘要、桌面验收清单与后续修复规则 |
+| [阶段验收报告](ACCEPTANCE-REPORT.md) | 用户桌面反馈、异常与复杂文档实测、修复及未通过项 |
+| [社区试用准备](COMMUNITY-READINESS.md) | 试用发行前的必需验证、界面完善与后续整理优先级 |
 | [每轮本地测试工作流](LOCAL-TEST-WORKFLOW.md) | 常用命令、隔离安装、可见测试窗口、自动回归与报告位置 |
+| [安装与试用说明](INSTALLATION.md) | 首次安装、现有安装更新、CLI 路径配置、前置条件与回退边界 |
+| [视觉标识说明](BRANDING.md) | 文档三叶 Logo、工具条配色、SVG/PNG 素材与设计预览边界 |
 | [对话与原文工作区改造](CONVERSATION-READER-PLAN.md) | 已讨论的产品方向、建议数据关系、接口证据、实施阶段及验收条件 |
 | [Windows 开发准备](WINDOWS-DEVELOPMENT.md) | 本地基线、工具、隔离环境、打包问题与恢复方法 |
 | [维护记录](MAINTENANCE.md) | 每次操作的变更、验证结果和待办；作为交接入口 |

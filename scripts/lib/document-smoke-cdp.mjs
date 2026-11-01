@@ -19,10 +19,10 @@ export async function connect(endpoint = 'http://127.0.0.1:9227') {
     pending.delete(message.id); clearTimeout(request.timer);
     if (message.error) request.reject(new Error(message.error.message)); else request.resolve(message.result);
   };
-  const call = (method, params = {}) => new Promise((resolve, reject) => {
+  const call = (method, params = {}, sessionId) => new Promise((resolve, reject) => {
     const id = ++seq;
     const timer = setTimeout(() => { pending.delete(id); reject(new Error(`CDP timed out: ${method}`)); }, 15000);
-    pending.set(id, { resolve, reject, timer }); ws.send(JSON.stringify({ id, method, params }));
+    pending.set(id, { resolve, reject, timer }); ws.send(JSON.stringify({ id, method, params, ...(sessionId ? { sessionId } : {}) }));
   });
   await call('Runtime.enable'); await call('Page.enable');
   const run = async (fn, ...args) => {

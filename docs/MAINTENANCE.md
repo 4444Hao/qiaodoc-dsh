@@ -1,5 +1,72 @@
 # 维护记录
 
+## 2026-11-01：维护用户精简版 README 与桌面展示素材
+
+保留用户“简短介绍＋实际截图”的首页方向，准确区分解释/翻译发送与询问 AI 加入草稿。补安装入口、Windows rc.5 兼容范围、已知限制及上游来源/GPL/第三方说明链接。安装文档的版本示例同步为 dev.5，未更改既有安装流程。
+
+四张用户截图保留原始文件，新增易维护的 `qiaodoc-split-view-v1.png`、`qiaodoc-selection-v1.png`、`qiaodoc-paste-text-v1.png`、`qiaodoc-new-chat-entry-v1.png`；副本与原文件逐字节摘要一致，不裁切、不重采样。README 采用正斜杠相对路径、居中展示、宽度分别为 840/720/380/640px，均不固定高度，点击可打开原图。前三张突出核心交互，第四张入口图折叠显示。
+
+screenshots.json 同步为分屏、选段、粘贴三张核心图，第四张仍随 README 入包；旧测试截图留在源码中但不再进入当前截图清单。包校验增加 README 本地图片的入包及正斜杠检查，避免只替换首页而漏发素材。
+
+验证：18 文件包校验通过；20 个本地链接存在；原图副本 SHA-256 相同；git diff --check 通过。使用现有 marked 与独立无头 Edge 生成本地排版预览并目视检查，不将其视为 GitHub 实站验证；公开访问、GitHub 排版与市场缩略图仍待用户推送后复核。本轮仅文档、素材与包校验维护，不改插件功能、不更新日用 DSH、不改版本号，也不重复运行无关的 101 项功能测试。Git 与发布操作未执行。本地证据为 `release/dev/reports/readme-maintenance-check.json` 和 `release/dev/readme-preview/readme.png`。
+
+## 2026-11-01：dev.5 日用桌面更新（未重启）
+
+按用户要求执行 `npm run dev:desktop`。101 项自动测试、18 文件包校验通过；桌面已安装 `1.2.0-dev.5`，reader bundle 已启用，无固定回复模型。宿主、客户端及 SVG/PNG 标识与工作区逐项核对一致。
+
+旧 dev.4 及配置备份位于 `%USERPROFILE%\.dsh\profiles\desktop\qiaomu-reader-backup-20261101-214749-914`，可用 `npm run dev:desktop:rollback` 恢复。状态为 **installed-restart-required**，本次未结束或重启 DSH，新入口与面板需完全退出（包括托盘）并重开后体验。日志与安装记录位于本地 `release/dev/reports/desktop-dev5-update.log`、`desktop-installation.json`。Git 与发布操作未执行。
+
+## 2026-11-01：dev.5 打开原文入口与面板精简
+
+入口增加小号文档三叶标识、绿色细边框和轻背景。面板标题统一为“打开原文”，顶部并列本地文档与粘贴文字；空状态使用简短提示，已有文件使用限高滚动区，路径输入与打开按钮并为一行。粘贴表单沿用已有字段和默认值，仅调整间距及保存按钮颜色。不新增设置，不改变文件打开、保存或 AI 任务规则。
+
+实际截图发现多文件列表在限高 flex 布局中被压缩，已给文件行设置不可收缩和 32px 最小高度。最终在真实隔离 rc.5 界面核对 24 个文件行均为 32px，320px/1440px 面板无横向溢出；101 项自动测试、13 项浏览器回归通过，无跳过、启动异常或操作异常。补真实截图 `docs/qa/qiaodoc-open-document-dev5.png`，包清单及截图 manifest 同步加入；包校验为 18 文件。
+
+日用桌面仍安装 dev.4，本轮未更新或重启；工作区候选为 `1.2.0-dev.5`。隔离测试端口在收尾释放，Git 与发布操作未执行。证据见本地 `release/dev/reports/launcher-dev5-final-local.log`、`launcher-dev5-final-browser.log`、`launcher-dev5/browser-smoke.json` 与 `launcher-dev5/layout-final.json`。旧版功能限制仍有效。
+
+## 2026-11-01：dev.4 日用桌面更新（未重启）
+
+用户明确要求仅更新桌面端。执行 `npm run dev:desktop`，101 项自动测试和 17 文件包校验通过；dev.4 已安装，reader bundle 已启用，日用 profile 未安装固定回复模型。index.js、client.js、icon.svg 及 PNG 标识与当前工作区逐一核对一致。
+
+旧 dev.3 与配置已备份到 `%USERPROFILE%\.dsh\profiles\desktop\qiaomu-reader-backup-20261101-213652-413`，回退命令为 `npm run dev:desktop:rollback`。状态 **installed-restart-required**；本次未结束、启动或重启 DSH，新工具条与标识需完全退出（包括托盘）并重开后体验。证据为 `release/dev/reports/desktop-dev4-update.log` 和 `desktop-installation.json`。Git 未执行变更。
+
+## 2026-11-01：dev.4 选段工具条与文档三叶标识
+
+按用户要求增强选段菜单辨识度，并为 QiaoDoc 制作“文档与三片叶子”的项目标识。工具条采用墨绿底色、薄荷绿翻译按钮和暖黄键盘焦点；保留四个文字操作，左侧标识不增加交互。增加按实际宽高定位和窄窗口换行，避免品牌标识及英文标签使菜单越界。提供强制颜色系统色规则，不增加动效。
+
+共用图形源 `src/core/brand.js` 同时用于客户端品牌组件和构建生成的 icon.svg；增加 `assets/qiaodoc-icon-256.png`，作为市场可接受的位图图标。`scripts/preview-brand.mjs` 复用同源 SVG/CSS 生成明确标注的设计预览，验证 320px 中英文布局和文字对比度，不将其冒充真实宿主截图。截图清单改为本轮实际隔离 rc.5 截图的新文件名，原图保留作历史对照；投稿 icon 地址须用户推送后复核。
+
+验证：101 项自动测试、17 文件包校验通过；13 项真实隔离浏览器回归全部通过，0 跳过、0 启动异常、0 操作异常。已目视检查实际选段界面、SVG 渲染 PNG 和深浅背景预览。未做真实 Windows 高对比模式签收，日用桌面仍为 dev.3，本轮不更新或重启。已有功能限制不变。详情见 [视觉标识说明](BRANDING.md)，本地证据为 `release/dev/reports/brand-dev4-visual.json`、`brand-dev4-local.log`、`brand-dev4-browser.log` 和 `brand-dev4/browser-smoke.json`。
+
+工作区版本为 `1.2.0-dev.4`，固定 dev.2 标签与 dev.3 验收归档保持不变。Git 与发布操作继续由用户手动执行；本轮未执行 Git 变更、推送、PR 或发布。
+
+最终本地候选为 `release/dev/brand-candidate/qiaomu-reader-dsh-1.2.0-dev.4-6378162d368f.tgz`，SHA-256 `6378162d368fcb9b065bb0ed7f61c6fd33638375bed6ac0f55f4d3d6c2f5eb7f`，17 个随包文件。候选在包校验及浏览器验证后打包；最终资料调整只涉及 README、截图清单和素材，两个运行时构建不变。本轮独立浏览器及 3087 测试宿主已关闭，日用桌面未结束。
+
+## 2026-11-01：dev.3 更新日用桌面并重开
+
+用户明确要求更新、重启后自行体验验收。执行 `npm run dev:desktop`，101 项自动测试和 16 文件包校验再次通过；安装版本 `1.2.0-dev.3`，reader bundle 已启用，日用 profile 没有固定回复模型。安装包 SHA-256 与最终验收候选一致：`bc9c18f9c9bfc117cd5bab7de478762118a8bae2a11d57173f976c6fd530031b`，两个构建摘要通过核对。
+
+旧 dev.2 包和配置保存在 `%USERPROFILE%\.dsh\profiles\desktop\qiaomu-reader-backup-20261101-210548-664`。更新前确认日用 DSH 已退出，安装后重新启动桌面可执行文件并确认进程持续运行；未强制结束其他应用。状态为 **installed-restarted-awaiting-user-acceptance**，实际界面与模型效果由用户体验签收，不能以启动进程代替 UI 验收。
+
+本地证据：`release/dev/reports/desktop-dev3-update.log`、`desktop-installation.json`。如需回退，执行 `npm run dev:desktop:rollback` 后完全退出并重开 DSH。固定 dev.2 标签未改变，Git 仍由用户手动操作。
+
+## 2026-11-01：阶段验收收尾与 dev.3 修复候选
+
+固定标签 `acceptance-1.2.0-dev.2` 和日用安装保持不变。用户反馈日用桌面基本满足需求，登记为基本通过，不代勾全部验收场景。本轮修复历史首次 Host 写入等待期间的滚动丢失，工作区版本为 `1.2.0-dev.3`；保留最新有效位置并在首次写入完成后补存，不改选段发送逻辑。
+
+- 验证：101 项自动测试、13 项隔离浏览器回归通过，后者无跳过、启动异常或操作异常；新增首次打开长 Markdown 后立即滚动的回归。无现有 node_modules 的源码目录执行 npm ci/check 通过，构建摘要一致。
+- 专项：24 页双栏合成 PDF、180 节 Markdown 及位置返回通过本轮范围；6000 行 TXT 加载和滚动登记部分通过。实际目录权限拒绝及同表单重试、源文件删除、会话归档、宿主中断期间保存均验证防护。HTML 渲染选段没有 AI 菜单；完整宿主重启自动恢复未通过，页面重入后未保存表单丢失。保存中切换会话、消息锚点失效及更多真实论文仍待测。
+- 安装与资料：兼容声明收窄为精确 rc.5；补通用首次安装/更新/回退说明，替换三张当前真实测试截图并将 manifest 和安装说明入包。全新 web profile 无旧 reader 安装、bundle 登记、冷启动和空历史已验证；最终包安装构建摘要、版本及 16 个文件核对通过。独立用户首次 desktop 安装仍待复核，未发布 Release。
+- 最终候选：`release/dev/acceptance-final/qiaomu-reader-dsh-1.2.0-dev.3-bc9c18f9c9bf.tgz`；SHA-256 `bc9c18f9c9bfc117cd5bab7de478762118a8bae2a11d57173f976c6fd530031b`。宿主 `948068f66d6b096bb684e6eab7c33f7d0310140c0db2fe4426d231b4bc4d332e`；客户端 `befdcf13951fb0c81df7fa33f61e7009dcb4eb793574432be341475a9f78233b`。最终完整 check 和 16 文件包校验通过。
+
+完整范围与证据见 [阶段验收报告](ACCEPTANCE-REPORT.md)。本轮检验收尾时 3087、3089、9227、9229 均无监听；日用应用未结束，未更新日用 profile。当前适合继续本地受限试用，尚不签收社区稳定版。所有 Git 暂存、提交、推送及新标签由用户在 VS Code 手动处理；本轮未执行这些操作。
+
+## 2026-11-01：本地目录更名准备与社区试用清单
+
+用户选择继续使用已有依赖和测试环境的原项目，并要求将目录由 `D:\qiaomu-reader-dsh` 更名为 `D:\qiaodoc-dsh`。本轮核查时目标目录已不存在，源目录为普通目录、提交 `dd68d7a`、工作区原为干净且 origin 已指向新仓库。直接更名被 Windows 拒绝，原因是目录正被其他进程使用；尚未更名，未关闭用户应用，也未覆盖或删除目录。需释放项目终端/编辑器或当前会话的占用后重试。
+
+新增 `COMMUNITY-READINESS.md`，按试用发行前、建议完善和后续整理记录桌面签收、异常恢复、复杂文档、首次安装、兼容声明、截图与发行包等事项；固定验收构建和标签不变。本轮仅维护文档，Git 暂存、提交、推送及标签由用户在 VS Code 手动管理。
+
 ## 2026-11-01：QiaoDoc 独立仓库与固定验收候选
 
 迁移目标为 `https://github.com/4444Hao/qiaodoc-dsh`，迁移前已核实其为公开、空白、非 Fork 仓库。本次保留 `.git` 和上游 `b549874` 之前的全部历史，将当前功能固定为 `1.2.0-dev.2`，使用不可覆盖的验收标签 `acceptance-1.2.0-dev.2`；具体范围、构建摘要及桌面验收清单见 `ACCEPTANCE-CANDIDATE.md`。

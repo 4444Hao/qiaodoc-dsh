@@ -2,7 +2,9 @@
 
 更新日期：2026-11-01。本地 fork 原型说明；正式交付范围见维护记录。
 
-当前源码版本 `1.2.0-dev.2` 增加粘贴 TXT/Markdown：通过已有会话 header 的 cwd 写入 `粘贴文档/`，不使用 `DSH_WORKSPACE` 指定的书库位置。完整回归需选择项目内 `release/dev/workspace` 为原生测试会话工作区；101 项自动测试、12 项隔离浏览器回归结果见维护记录。下文旧版安装条目保留当时状态，最新日用候选以维护记录和 `desktop-installation.json` 为准。
+当前源码修复候选为 `1.2.0-dev.3`，修复首次历史写入等待期间滚动位置丢失；101 项自动测试、13 项隔离浏览器回归通过，兼容声明仅为 Windows DSH `0.2.1-rc.5`。隔离检验结束后，按用户要求已更新日用桌面并重开 dev.3，等待体验验收；旧 dev.2 已备份。完整证据与限制见 [阶段验收报告](ACCEPTANCE-REPORT.md)，下文旧安装条目保留当时状态。
+
+dev.2 增加的粘贴 TXT/Markdown 通过已有会话 header 的 cwd 写入 `粘贴文档/`，不使用 `DSH_WORKSPACE` 指定的书库位置。完整回归需选择项目内 `release/dev/workspace` 为原生测试会话工作区；下文旧版安装条目保留当时状态。
 
 日常使用优先参照 [每轮本地测试工作流](LOCAL-TEST-WORKFLOW.md)：`npm run dev:local` → `npm run dev:browser` → `npm run test:browser`。下文保留接口边界与底层准备方法；新工作流使用可见 Edge、端口 9228，原手动无头方案使用 9227。
 
@@ -10,7 +12,7 @@
 
 | 项目 | 当前值 |
 | --- | --- |
-| 仓库及基线 | `4444Hao/qiaomu-reader-dsh`，`D:\qiaomu-reader-dsh`；`b549874` / 1.1.2 |
+| 仓库及基线 | `4444Hao/qiaodoc-dsh`，本地仍为 `D:\qiaomu-reader-dsh`；上游基线 `b549874` / 1.1.2 |
 | 目标宿主 | Windows 桌面版自带 DSH 0.2.1-rc.5 |
 | CLI | `D:\dsh-desktop\resources\runtime\cli\bin\dsh.cmd` |
 | PATH 中的 CLI | 0.1.0-rc.6，未使用、未升级 |

@@ -2584,9 +2584,9 @@ var init_pdf = __esm({
       5917(module2, __unused_webpack_exports, __webpack_require__3) {
         var DESCRIPTORS = __webpack_require__3(3724);
         var fails = __webpack_require__3(9039);
-        var createElement5 = __webpack_require__3(4055);
+        var createElement6 = __webpack_require__3(4055);
         module2.exports = !DESCRIPTORS && !fails(function() {
-          return Object.defineProperty(createElement5("div"), "a", {
+          return Object.defineProperty(createElement6("div"), "a", {
             get: function() {
               return 7;
             }
@@ -41133,9 +41133,9 @@ var init_pdf_worker = __esm({
       5917(module2, __unused_webpack_exports, __webpack_require__3) {
         var DESCRIPTORS = __webpack_require__3(3724);
         var fails = __webpack_require__3(9039);
-        var createElement5 = __webpack_require__3(4055);
+        var createElement6 = __webpack_require__3(4055);
         module2.exports = !DESCRIPTORS && !fails(function() {
-          return Object.defineProperty(createElement5("div"), "a", {
+          return Object.defineProperty(createElement6("div"), "a", {
             get: function() {
               return 7;
             }
@@ -110817,7 +110817,7 @@ __export(client_entry_exports, {
 module.exports = __toCommonJS(client_entry_exports);
 
 // src/client/index.js
-var React4 = __toESM(require("react"), 1);
+var React5 = __toESM(require("react"), 1);
 
 // src/core/state.js
 var DEFAULT_READER_SETTINGS = Object.freeze({
@@ -112062,7 +112062,7 @@ function remoteHostApi(ctx) {
 }
 
 // src/client/document-reader.js
-var React2 = __toESM(require("react"), 1);
+var React3 = __toESM(require("react"), 1);
 
 // src/core/document-task.js
 var DocumentTaskError = class extends Error {
@@ -112369,9 +112369,13 @@ function createDocumentHistory(data) {
             const restore2 = restores.get(key);
             if (restore2) await view.restore(restore2);
             if (!visible()) return;
-            lastPosition = positionOf(root);
-            await save({ ...document2, opened: true, position: lastPosition });
+            const initialPosition = lastPosition = positionOf(root);
+            await save({ ...document2, opened: true, position: initialPosition });
             recorded = true;
+            if (visible()) lastPosition = positionOf(root);
+            if (lastPosition && JSON.stringify(lastPosition) !== JSON.stringify(initialPosition)) {
+              await save({ ...document2, position: lastPosition });
+            }
           }
         } catch (error) {
           emit({ error: error.message });
@@ -112380,8 +112384,9 @@ function createDocumentHistory(data) {
         }
       };
       const scroll = () => {
-        if (!recorded || !visible() || restoring) return;
+        if (!visible() || restoring) return;
         lastPosition = positionOf(root);
+        if (!recorded) return;
         clearTimeout(timer);
         timer = setTimeout(() => {
           if (visible()) void save({ ...document2, position: lastPosition }).catch(() => {
@@ -112522,8 +112527,85 @@ function suggestedPasteName(text, date = /* @__PURE__ */ new Date()) {
   return `${title}_${date.getFullYear()}${pad(date.getMonth() + 1)}${pad(date.getDate())}-${pad(date.getHours())}${pad(date.getMinutes())}${pad(date.getSeconds())}`;
 }
 
+// src/client/brand.js
+var React2 = __toESM(require("react"), 1);
+
+// src/core/brand.js
+var QIAODOC_MARK_SHAPES = [
+  ["rect", { width: 48, height: 48, rx: 12, fill: "#075341" }],
+  ["path", { d: "M13 10h14l7 7v22H13Z", fill: "#effcf4" }],
+  ["path", { d: "M27 10v8h7Z", fill: "#bcebd2" }],
+  ["path", { d: "M18 23h10M18 28h7", fill: "none", stroke: "#36836a", strokeWidth: 2, strokeLinecap: "round" }],
+  ["path", { d: "M33 33c-1-6 2-10 9-11 0 7-3 11-9 11Z", fill: "#bef264" }],
+  ["path", { d: "M32 37c-7 0-10-4-10-9 7-1 11 3 10 9Z", fill: "#6ee7b7" }],
+  ["path", { d: "M35 39c0-5 3-8 8-8-1 6-4 9-8 8Z", fill: "#facc15" }]
+];
+var QIAODOC_ICON_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" role="img" aria-label="QiaoDoc \xB7 \u4E54\u8C46\u6587\u89E3">
+${QIAODOC_MARK_SHAPES.map(([tag, attrs]) => `  <${tag} ${Object.entries(attrs).map(([key, value]) => `${key.replace(/[A-Z]/g, (letter) => `-${letter.toLowerCase()}`)}="${value}"`).join(" ")}/>`).join("\n")}
+</svg>
+`;
+
+// src/client/brand.js
+function QiaoDocMark({ size = 24 }) {
+  return React2.createElement("svg", {
+    width: size,
+    height: size,
+    viewBox: "0 0 48 48",
+    "aria-hidden": true,
+    focusable: false,
+    style: { display: "block", flexShrink: 0 }
+  }, ...QIAODOC_MARK_SHAPES.map(([tag, attrs], key) => React2.createElement(tag, { ...attrs, key })));
+}
+
+// src/client/document-styles.js
+var DOCUMENT_STYLES = `
+.qmr-doc-button{font:inherit;color:var(--dsw-alias-label-primary);background:transparent;border:1px solid var(--dsw-alias-border-l1,#ddd);border-radius:6px;padding:5px 9px;cursor:pointer;white-space:nowrap}
+.qmr-doc-button:hover{background:var(--dsw-alias-interactive-bg-hover,#eee)}
+.qmr-doc-button:focus-visible{outline:2px solid var(--dsw-alias-label-secondary);outline-offset:2px}
+.qmr-doc-button:disabled{opacity:.5;cursor:default}
+.qmr-doc-trigger{display:inline-flex;align-items:center;gap:7px;padding:6px 10px;border-color:#3b967577;background:var(--dsw-alias-bg-base,#fff);box-shadow:inset 0 0 0 999px #20a36a0b}
+.qmr-doc-trigger:hover,.qmr-doc-trigger[aria-expanded=true]{background:var(--dsw-alias-bg-base,#fff);border-color:#42ac83;box-shadow:inset 0 0 0 999px #20a36a20}
+.qmr-doc-menu{position:fixed;z-index:2000;display:flex;flex-wrap:wrap;align-items:center;gap:4px;box-sizing:border-box;max-width:calc(100vw - 16px);padding:6px;background:#123e35;color:#f0fff6;border:1px solid #65cba1;border-radius:12px;box-shadow:0 6px 24px #001d2540,0 0 0 1px #072d2333;font-size:14px;line-height:20px;color-scheme:dark}
+.qmr-doc-brand{display:flex;align-items:center;padding:0 7px 0 1px;margin-right:2px;border-right:1px solid #65cba166;pointer-events:none}
+.qmr-doc-menu .qmr-doc-button{border:0;border-radius:7px;min-height:34px;padding:7px 10px;color:#f0fff6;font-weight:550;background:transparent}
+.qmr-doc-menu .qmr-doc-button:hover{background:#2b6252}
+.qmr-doc-menu .qmr-doc-action-explain{background:#20563f}
+.qmr-doc-menu .qmr-doc-action-translate{background:#c2f2d4;color:#123e35}
+.qmr-doc-menu .qmr-doc-action-translate:hover{background:#e2ffe9}
+.qmr-doc-menu .qmr-doc-button:focus-visible{outline:2px solid #fcd34d;outline-offset:1px}
+.qmr-doc-menu .qmr-doc-button:disabled{opacity:.55;cursor:default}
+@media(forced-colors:active){.qmr-doc-menu{background:Canvas;color:CanvasText;border-color:CanvasText;box-shadow:none}.qmr-doc-menu .qmr-doc-button{color:ButtonText;background:ButtonFace;border:1px solid ButtonText}.qmr-doc-brand{border-color:CanvasText}.qmr-doc-menu .qmr-doc-button:focus-visible{outline-color:Highlight}}
+.qmr-doc-notice{position:fixed;z-index:2001;bottom:30px;right:24px;max-width:360px;padding:12px;background:var(--dsw-alias-bg-base,#fff);color:var(--dsw-alias-label-primary,#222);border:1px solid var(--dsw-alias-border-l1,#ddd);border-radius:8px;font-size:13px}
+.qmr-doc-picker{position:fixed;z-index:2000;right:24px;top:72px;box-sizing:border-box;width:min(390px,calc(100vw - 48px));padding:16px;border:1px solid #4fae8977;border-radius:12px;background:var(--dsw-alias-bg-base,#fff);color:var(--dsw-alias-label-primary,#222);box-shadow:0 8px 28px #001d2529;display:flex;flex-direction:column;gap:14px;font-size:13px;line-height:1.5}
+.qmr-doc-picker-heading{display:flex;align-items:center;gap:8px}
+.qmr-doc-picker-heading strong{flex:1;font-size:14px}
+.qmr-doc-picker .qmr-doc-close{border:0;padding:3px 6px;font-size:12px;color:var(--dsw-alias-label-secondary,#647469)}
+.qmr-doc-picker-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.qmr-doc-picker-actions .qmr-doc-button{white-space:normal;overflow-wrap:anywhere;min-height:36px}
+.qmr-doc-picker .qmr-doc-local,.qmr-doc-picker .qmr-doc-save{background:#c2f2d4;border-color:#76c99d;color:#123e35;font-weight:550}
+.qmr-doc-picker .qmr-doc-local:hover,.qmr-doc-picker .qmr-doc-save:hover{background:#a8e9c1}
+.qmr-doc-picker .qmr-doc-paste-toggle{border-color:#4fae8977}
+.qmr-doc-picker .qmr-doc-paste-toggle[aria-expanded=true]{box-shadow:inset 0 0 0 999px #20a36a18}
+.qmr-doc-empty{margin:0;font-size:12px;color:var(--dsw-alias-label-secondary,#647469)}
+.qmr-doc-files{display:flex;flex-direction:column;gap:6px;max-height:180px;overflow-y:auto;min-height:0}
+.qmr-doc-files>.qmr-doc-file{flex-shrink:0;min-height:32px}
+.qmr-doc-files>small{flex-shrink:0}
+.qmr-doc-files>small,.qmr-doc-paste>small{color:var(--dsw-alias-label-secondary,#647469)}
+.qmr-doc-path{display:flex;align-items:flex-end;gap:8px;border-top:1px solid var(--dsw-alias-border-l1,#ddd);padding-top:12px}
+.qmr-doc-path label{display:flex;flex:1;min-width:0;flex-direction:column;gap:5px;font-size:12px;color:var(--dsw-alias-label-secondary,#647469)}
+.qmr-doc-path>.qmr-doc-button{min-height:36px;flex-shrink:0;font-size:12px}
+.qmr-doc-path input{color:var(--dsw-alias-label-primary,#222)!important;min-width:0}
+.qmr-doc-picker input[type=text],.qmr-doc-picker textarea,.qmr-doc-picker select{box-sizing:border-box;width:100%;padding:8px;border:1px solid var(--dsw-alias-border-l1,#ddd);border-radius:5px;color:inherit;background:var(--dsw-alias-bg-base,#fff);font:inherit}
+.qmr-doc-picker{max-height:calc(100vh - 110px);overflow-y:auto}
+.qmr-doc-picker textarea{min-height:160px;resize:vertical}
+.qmr-doc-paste{display:flex;flex-direction:column;gap:10px}
+.qmr-doc-paste label{display:flex;flex-direction:column;gap:5px;font-size:12px}
+.qmr-doc-file{display:block;text-align:left;overflow:hidden;text-overflow:ellipsis}
+@media(forced-colors:active){.qmr-doc-trigger,.qmr-doc-picker,.qmr-doc-picker .qmr-doc-button{border-color:ButtonText;box-shadow:none}.qmr-doc-picker .qmr-doc-local,.qmr-doc-picker .qmr-doc-save{background:ButtonFace;color:ButtonText}}
+`;
+
 // src/client/document-reader.js
-var h = React2.createElement;
+var h = React3.createElement;
 var DOCUMENT_MESSAGES = {
   zh: {
     "document.open": "\u6253\u5F00\u539F\u6587",
@@ -112535,7 +112617,7 @@ var DOCUMENT_MESSAGES = {
     "document.copy": "\u590D\u5236",
     "document.ask": "\u8BE2\u95EE AI",
     "document.close": "\u5173\u95ED",
-    "document.empty": "\u5F53\u524D\u5DF2\u52A0\u8F7D\u7684\u6D88\u606F\u4E2D\u6CA1\u6709\u53EF\u9605\u8BFB\u7684\u6587\u6863\u3002",
+    "document.empty": "\u6682\u65E0\u6587\u6863\uFF0C\u53EF\u6253\u5F00\u672C\u5730\u6587\u4EF6\u6216\u7C98\u8D34\u6587\u5B57\u3002",
     "document.opening": "\u6B63\u5728\u6253\u5F00\u2026",
     "document.inserted": "\u5F15\u7528\u5DF2\u52A0\u5165\u5F53\u524D\u8F93\u5165\u6846\uFF0C\u8BF7\u8865\u5145\u95EE\u9898\u3002",
     "document.submitted": "\u5DF2\u63D0\u4EA4\u5230\u5F53\u524D\u5BF9\u8BDD\u3002",
@@ -112568,7 +112650,7 @@ var DOCUMENT_MESSAGES = {
     "document.copy": "Copy",
     "document.ask": "Ask AI",
     "document.close": "Close",
-    "document.empty": "No readable documents in the currently loaded messages.",
+    "document.empty": "No documents yet. Open a local file or paste text.",
     "document.opening": "Opening\u2026",
     "document.inserted": "Quote inserted into the current composer. Add your question.",
     "document.submitted": "Submitted to the current conversation.",
@@ -112592,33 +112674,32 @@ var DOCUMENT_MESSAGES = {
     "document.savedAt": "File saved at: "
   }
 };
-var CSS2 = `
-.qmr-doc-button{font:inherit;color:var(--dsw-alias-label-primary);background:transparent;border:1px solid var(--dsw-alias-border-l1,#ddd);border-radius:6px;padding:5px 9px;cursor:pointer;white-space:nowrap}
-.qmr-doc-button:hover{background:var(--dsw-alias-interactive-bg-hover,#eee)}
-.qmr-doc-button:focus-visible{outline:2px solid var(--dsw-alias-label-secondary);outline-offset:2px}
-.qmr-doc-button:disabled{opacity:.5;cursor:default}
-.qmr-doc-menu{position:fixed;z-index:2000;display:flex;gap:3px;padding:5px;background:var(--dsw-alias-bg-base,#fff);color:var(--dsw-alias-label-primary,#222);border:1px solid var(--dsw-alias-border-l1,#ddd);border-radius:10px;box-shadow:0 4px 16px #0002}
-.qmr-doc-menu .qmr-doc-button{border:0}
-.qmr-doc-notice{position:fixed;z-index:2001;bottom:30px;right:24px;max-width:360px;padding:12px;background:var(--dsw-alias-bg-base,#fff);color:var(--dsw-alias-label-primary,#222);border:1px solid var(--dsw-alias-border-l1,#ddd);border-radius:8px;font-size:13px}
-.qmr-doc-picker{position:fixed;z-index:2000;right:24px;top:72px;width:min(390px,calc(100vw - 48px));padding:16px;border:1px solid var(--dsw-alias-border-l1,#ddd);border-radius:10px;background:var(--dsw-alias-bg-base,#fff);color:var(--dsw-alias-label-primary,#222);box-shadow:0 8px 24px #0002;display:flex;flex-direction:column;gap:12px;font-size:13px}
-.qmr-doc-picker input[type=text],.qmr-doc-picker textarea,.qmr-doc-picker select{box-sizing:border-box;width:100%;padding:8px;border:1px solid var(--dsw-alias-border-l1,#ddd);border-radius:5px;color:inherit;background:var(--dsw-alias-bg-base,#fff);font:inherit}
-.qmr-doc-picker{max-height:calc(100vh - 110px);overflow-y:auto}
-.qmr-doc-picker textarea{min-height:160px;resize:vertical}
-.qmr-doc-paste{display:flex;flex-direction:column;gap:10px}
-.qmr-doc-file{display:block;text-align:left;overflow:hidden;text-overflow:ellipsis}
-`;
 function SelectionActions({ sessionId, absolutePath, documentTitle, getBinding, captureTarget, targetCurrent, history, t }) {
-  const anchor = React2.useRef(null);
-  const current = React2.useRef(null);
-  const [selection, setSelection] = React2.useState(null);
-  const [notice, setNotice] = React2.useState("");
-  const [busy, setBusy] = React2.useState(false);
-  const actionPending = React2.useRef(false);
-  const task = React2.useMemo(() => createDocumentTasks(getBinding, (picked) => {
+  const anchor = React3.useRef(null);
+  const menu = React3.useRef(null);
+  const current = React3.useRef(null);
+  const [selection, setSelection] = React3.useState(null);
+  const [notice, setNotice] = React3.useState("");
+  const [busy, setBusy] = React3.useState(false);
+  React3.useLayoutEffect(() => {
+    if (!selection || !menu.current) return void 0;
+    const place = () => {
+      const element = menu.current;
+      if (!element) return;
+      const rect = element.getBoundingClientRect();
+      element.style.left = `${Math.max(8, Math.min(selection.x, window.innerWidth - rect.width - 8))}px`;
+      element.style.top = `${Math.max(8, Math.min(selection.y, window.innerHeight - rect.height - 8))}px`;
+    };
+    place();
+    window.addEventListener("resize", place);
+    return () => window.removeEventListener("resize", place);
+  }, [selection]);
+  const actionPending = React3.useRef(false);
+  const task = React3.useMemo(() => createDocumentTasks(getBinding, (picked) => {
     const root = anchor.current?.closest("[data-textpreview-url]");
     return current.current === picked && root?.getAttribute("data-textpreview-url") === picked.address && root.getClientRects().length > 0 && targetCurrent(picked.target);
   }), [getBinding, targetCurrent]);
-  React2.useEffect(() => {
+  React3.useEffect(() => {
     current.current = null;
     setSelection(null);
     setNotice("");
@@ -112654,7 +112735,7 @@ function SelectionActions({ sessionId, absolutePath, documentTitle, getBinding, 
         page: firstPage ? Number(firstPage) : void 0,
         title: documentTitle(absolutePath),
         address: root.getAttribute("data-textpreview-url"),
-        x: Math.max(8, Math.min(rect.left, window.innerWidth - 330)),
+        x: Math.max(8, rect.left),
         y: Math.max(8, Math.min(rect.bottom + 8, window.innerHeight - 60))
       };
       current.current = picked;
@@ -112717,30 +112798,31 @@ function SelectionActions({ sessionId, absolutePath, documentTitle, getBinding, 
     { ref: anchor, "data-qmr-document-actions": true },
     selection ? h(
       "div",
-      { className: "qmr-doc-menu", role: "toolbar", "aria-label": t("document.ask"), style: { left: selection.x, top: selection.y }, onMouseDown: (event) => event.preventDefault() },
-      ...["explain", "translate", "copy", "ask"].map((action) => h("button", { key: action, className: "qmr-doc-button", disabled: busy, onClick: () => void perform(action) }, t(`document.${action}`)))
+      { ref: menu, className: "qmr-doc-menu", role: "toolbar", "aria-label": t("document.ask"), style: { left: selection.x, top: selection.y }, onMouseDown: (event) => event.preventDefault() },
+      h("span", { className: "qmr-doc-brand", "aria-hidden": true }, h(QiaoDocMark, { size: 28 })),
+      ...["explain", "translate", "copy", "ask"].map((action) => h("button", { key: action, className: `qmr-doc-button qmr-doc-action-${action}`, disabled: busy, onClick: () => void perform(action) }, t(`document.${action}`)))
     ) : null,
     notice ? h("div", { className: "qmr-doc-notice", role: "status", onClick: () => setNotice("") }, notice) : null
   );
 }
 function DocumentLauncher({ sessionId, useChat, openFile, openAttachment, savePaste, history, t }) {
   const chat = useChat((state) => state);
-  const files = React2.useMemo(() => conversationFiles(chat), [chat]);
-  const historyState = React2.useSyncExternalStore(history.subscribe, history.getSnapshot);
+  const files = React3.useMemo(() => conversationFiles(chat), [chat]);
+  const historyState = React3.useSyncExternalStore(history.subscribe, history.getSnapshot);
   const openedFiles = historyState.entries.filter((entry) => entry.sessionId === sessionId);
-  const [opened, setOpened] = React2.useState(false);
-  const [path, setPath] = React2.useState("");
-  const [busy, setBusy] = React2.useState(false);
-  const [error, setError] = React2.useState("");
-  const [pasting, setPasting] = React2.useState(false);
-  const [text, setText] = React2.useState("");
-  const [name, setName] = React2.useState("");
-  const [format, setFormat] = React2.useState("txt");
-  const nameEdited = React2.useRef(false);
-  const pending = React2.useRef(false);
-  const savedPaste = React2.useRef(null);
-  const picker = React2.useRef(null);
-  React2.useEffect(() => {
+  const [opened, setOpened] = React3.useState(false);
+  const [path, setPath] = React3.useState("");
+  const [busy, setBusy] = React3.useState(false);
+  const [error, setError] = React3.useState("");
+  const [pasting, setPasting] = React3.useState(false);
+  const [text, setText] = React3.useState("");
+  const [name, setName] = React3.useState("");
+  const [format, setFormat] = React3.useState("txt");
+  const nameEdited = React3.useRef(false);
+  const pending = React3.useRef(false);
+  const savedPaste = React3.useRef(null);
+  const picker = React3.useRef(null);
+  React3.useEffect(() => {
     setOpened(false);
     setPasting(false);
     setPath("");
@@ -112785,17 +112867,32 @@ ${cause.message}`);
     savedPaste.current = null;
   });
   return h(
-    React2.Fragment,
+    React3.Fragment,
     null,
-    h("button", { className: "qmr-doc-button", "aria-expanded": opened, onClick: () => setOpened(!opened) }, t("document.open")),
+    h("button", { className: "qmr-doc-button qmr-doc-trigger", "aria-expanded": opened, onClick: () => setOpened(!opened) }, h(QiaoDocMark, { size: 18 }), t("document.open")),
     opened ? h(
       "section",
       { className: "qmr-doc-picker", role: "dialog", "aria-label": t("document.open") },
-      h("div", { style: { display: "flex", justifyContent: "space-between" } }, h("strong", null, t("document.files")), h("button", { className: "qmr-doc-button", onClick: () => setOpened(false) }, t("document.close"))),
-      ...files.map((file) => h("button", { key: file.attachmentId, className: "qmr-doc-button qmr-doc-file", disabled: busy, onClick: () => void run(() => openAttachment(sessionId, file)) }, file.name)),
-      ...openedFiles.map((file) => h("button", { key: file.id, className: "qmr-doc-button qmr-doc-file", title: file.filePath, disabled: busy, onClick: () => void run(() => openFile(sessionId, file.filePath)) }, file.title)),
-      files.length || openedFiles.length ? null : h("span", null, t("document.empty")),
-      h("button", { className: "qmr-doc-button", disabled: busy, "aria-expanded": pasting, onClick: () => setPasting(!pasting) }, t("document.paste")),
+      h(
+        "header",
+        { className: "qmr-doc-picker-heading" },
+        h(QiaoDocMark, { size: 22 }),
+        h("strong", null, t("document.open")),
+        h("button", { className: "qmr-doc-button qmr-doc-close", onClick: () => setOpened(false) }, t("document.close"))
+      ),
+      h(
+        "div",
+        { className: "qmr-doc-picker-actions" },
+        h("button", { className: "qmr-doc-button qmr-doc-local", disabled: busy, onClick: () => picker.current?.click() }, t("document.local")),
+        h("button", { className: "qmr-doc-button qmr-doc-paste-toggle", disabled: busy, "aria-expanded": pasting, onClick: () => setPasting(!pasting) }, t("document.paste"))
+      ),
+      files.length || openedFiles.length ? h(
+        "div",
+        { className: "qmr-doc-files" },
+        h("small", null, t("document.files")),
+        ...files.map((file) => h("button", { key: file.attachmentId, className: "qmr-doc-button qmr-doc-file", disabled: busy, onClick: () => void run(() => openAttachment(sessionId, file)) }, file.name)),
+        ...openedFiles.map((file) => h("button", { key: file.id, className: "qmr-doc-button qmr-doc-file", title: file.filePath, disabled: busy, onClick: () => void run(() => openFile(sessionId, file.filePath)) }, file.title))
+      ) : h("p", { className: "qmr-doc-empty" }, t("document.empty")),
       pasting ? h(
         "div",
         { className: "qmr-doc-paste" },
@@ -112811,13 +112908,16 @@ ${cause.message}`);
         } })),
         h("label", null, t("document.format"), h("select", { "data-qmr-paste-format": true, value: format, disabled: busy, onChange: (event) => setFormat(event.target.value) }, h("option", { value: "txt" }, "TXT (.txt)"), h("option", { value: "md" }, "Markdown (.md)"))),
         name ? h("small", { style: { overflowWrap: "anywhere" } }, `${name}.${format}`) : null,
-        h("button", { className: "qmr-doc-button", disabled: busy || !text.trim() || !name.trim(), onClick: () => void create() }, busy ? t("document.saving") : t("document.saveOpen"))
+        h("button", { className: "qmr-doc-button qmr-doc-save", disabled: busy || !text.trim() || !name.trim(), onClick: () => void create() }, busy ? t("document.saving") : t("document.saveOpen"))
       ) : null,
-      h("label", null, t("document.path"), h("input", { type: "text", value: path, onChange: (event) => setPath(event.target.value), onKeyDown: (event) => {
-        if (event.key === "Enter" && path.trim()) void run(() => openFile(sessionId, path.trim()));
-      } })),
-      h("button", { className: "qmr-doc-button", disabled: busy || !path.trim(), onClick: () => void run(() => openFile(sessionId, path.trim())) }, busy ? t("document.opening") : t("document.open")),
-      h("button", { className: "qmr-doc-button", disabled: busy, onClick: () => picker.current?.click() }, t("document.local")),
+      h(
+        "div",
+        { className: "qmr-doc-path" },
+        h("label", null, t("document.path"), h("input", { type: "text", value: path, onChange: (event) => setPath(event.target.value), onKeyDown: (event) => {
+          if (event.key === "Enter" && path.trim()) void run(() => openFile(sessionId, path.trim()));
+        } })),
+        h("button", { className: "qmr-doc-button", disabled: busy || !path.trim(), onClick: () => void run(() => openFile(sessionId, path.trim())) }, busy ? t("document.opening") : t("document.open"))
+      ),
       h("input", { ref: picker, type: "file", accept: ".pdf,.txt,.md,.markdown,.html,.htm", hidden: true, onChange: (event) => {
         const file = event.target.files?.[0];
         event.target.value = "";
@@ -112870,7 +112970,7 @@ function installDocumentReader(ctx, data, history) {
     scope.effect(() => {
       if (typeof document === "undefined") return void 0;
       const style = document.createElement("style");
-      style.textContent = CSS2;
+      style.textContent = DOCUMENT_STYLES;
       document.head.appendChild(style);
       return () => style.remove();
     }, "qiaomu-reader: document action styles");
@@ -112879,7 +112979,7 @@ function installDocumentReader(ctx, data, history) {
       id: "qiaomu-reader.selection",
       locale: "qiaomu-reader",
       inject: () => ({ documentTitle, getBinding, history, captureTarget: (element) => scope.sidebarRight.commandTarget(element), targetCurrent: (target) => scope.sidebarRight.isTargetCurrent(target) })
-    }, (props) => h(React2.Fragment, null, h(SelectionActions, props), h(DocumentHistoryTracker, props)))), "qiaomu-reader: native document selection");
+    }, (props) => h(React3.Fragment, null, h(SelectionActions, props), h(DocumentHistoryTracker, props)))), "qiaomu-reader: native document selection");
     scope.effect(() => scope.slots.inject("conversation.session.header.utilities", () => scope.slots.register({
       name: "conversation.session.header.utilities",
       id: "qiaomu-reader.open-document",
@@ -112896,8 +112996,8 @@ function installDocumentReader(ctx, data, history) {
 }
 
 // src/ui/document-history.js
-var React3 = __toESM(require("react"), 1);
-var h2 = React3.createElement;
+var React4 = __toESM(require("react"), 1);
+var h2 = React4.createElement;
 var HISTORY_MESSAGES = {
   zh: {
     open: "\u6587\u6863\u5386\u53F2",
@@ -112925,10 +113025,10 @@ var HISTORY_MESSAGES = {
   }
 };
 function DocumentHistoryPanel({ history, close, t }) {
-  const state = React3.useSyncExternalStore(history.subscribe, history.getSnapshot);
-  const [busy, setBusy] = React3.useState("");
-  const [error, setError] = React3.useState("");
-  React3.useEffect(() => {
+  const state = React4.useSyncExternalStore(history.subscribe, history.getSnapshot);
+  const [busy, setBusy] = React4.useState("");
+  const [error, setError] = React4.useState("");
+  React4.useEffect(() => {
     void history.load();
   }, [history]);
   const groups = /* @__PURE__ */ new Map();
@@ -113084,11 +113184,7 @@ function apply(ctx) {
   }
 }
 function DocumentIcon({ size = 18 }) {
-  return React4.createElement(
-    "svg",
-    { width: size, height: size, viewBox: "0 0 24 24", fill: "none", "aria-hidden": true },
-    React4.createElement("path", { d: "M6 3h8l4 4v14H6z M14 3v5h4 M9 12h6 M9 16h6", stroke: "currentColor", strokeWidth: 1.6, strokeLinejoin: "round" })
-  );
+  return React5.createElement(QiaoDocMark, { size });
 }
 
     })(module, exports, require);

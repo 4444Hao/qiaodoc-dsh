@@ -6,6 +6,7 @@ import { installDocumentReader, DOCUMENT_MESSAGES } from './document-reader.js';
 import { createDocumentHistory } from './document-history.js';
 import { DocumentHistoryPanel, HISTORY_MESSAGES } from '../ui/document-history.js';
 import { READER_REMOTE_METHODS } from '../core/reader-remotes.js';
+import { QiaoDocMark } from './brand.js';
 
 const ID = 'qiaomu-reader';
 const remoteCodec = () => ({ mode: 'strict', typeSymbol: 'qiaomu-reader-dsh#json',
@@ -63,6 +64,5 @@ export function apply(ctx) {
   }
 }
 function DocumentIcon({ size = 18 }) {
-  return React.createElement('svg', { width: size, height: size, viewBox: '0 0 24 24', fill: 'none', 'aria-hidden': true },
-    React.createElement('path', { d: 'M6 3h8l4 4v14H6z M14 3v5h4 M9 12h6 M9 16h6', stroke: 'currentColor', strokeWidth: 1.6, strokeLinejoin: 'round' }));
+  return React.createElement(QiaoDocMark, { size });
 }

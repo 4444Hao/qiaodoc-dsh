@@ -6,7 +6,8 @@
 - 当前仅迁移源码与固定验收标签 `acceptance-1.2.0-dev.2`，未发布本项目的稳定版、npm 包或市场条目。
 - 内部安装包名保留 `qiaomu-reader-dsh`；本地构建与安装见 [测试工作流](LOCAL-TEST-WORKFLOW.md)。
 - [marketplace-entry.yml](marketplace-entry.yml) 为当前项目的资料草稿，未提交。
-- [screenshots.json](../screenshots.json) 中仍是上游历史截图，不代表当前主界面；正式发布前需替换并重新核验。
+- [screenshots.json](../screenshots.json) 使用用户提供的三张桌面截图，顺序为分屏、选段、粘贴；第四张新对话入口仅作为 README 折叠补充。四张图片均进入包清单，旧截图及原始哈希文件名副本保留在源码中。
+- 工作区版本为 `1.2.0-dev.5`；历史验收证据见 [阶段验收报告](ACCEPTANCE-REPORT.md)，最新交付状态见 [维护记录](MAINTENANCE.md)。
 
 ## 上游历史资料
 

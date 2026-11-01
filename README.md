@@ -1,69 +1,68 @@
 # 乔豆文解 · QiaoDoc for DeepSeek Harness
 
-在对话中阅读、理解文档。
+在 DeepSeek Harness 当前对话旁打开文档，边阅读、边翻译、边提问。
 
-当前固定验收候选为 `1.2.0-dev.2`，标签 `acceptance-1.2.0-dev.2`。项目自 2026 年 11 月起在 [4444Hao/qiaodoc-dsh](https://github.com/4444Hao/qiaodoc-dsh) 独立维护，基于 joeseesun 开发和维护的 [乔木阅读 DSH](https://github.com/joeseesun/qiaomu-reader-dsh)，并非其官方后续版本。目标运行时为 Windows 桌面版附带的 DSH **0.2.1-rc.5**，尚未发布稳定版。
+参考豆包网页版的分屏阅读体验，保留 Harness 原生会话。支持 PDF、TXT、Markdown 和 HTML 预览，也可将粘贴文字保存为 TXT 或 Markdown 后阅读。
 
-已完成 101 项自动测试与 12 项隔离浏览器回归；日用桌面及真实模型仍需用户验收。范围、构建摘要与待验收项目见 [固定验收候选](docs/ACCEPTANCE-CANDIDATE.md)。为兼容现有安装，内部插件包名仍为 `qiaomu-reader-dsh`，界面入口仍为“文档历史”。
+选段后点击“解释”或“翻译”，会将选段与来源发送到当前会话；“询问 AI”先加入草稿，由你编辑后发送。AI 使用当前会话选择的模型。
 
-在原生对话中打开文件，右侧阅读原文；选段可解释、翻译、复制或加入当前输入框。侧栏“文档历史”只按格式列出对话中实际打开的文件，点击返回原会话和原文位置。
+## 功能展示
 
-## 使用
+以下为桌面界面截图，示例内容仅用于展示交互；点击图片可查看原图。
 
-1. 进入已有 DSH 对话，或由用户在 DSH 中创建普通对话。
-2. 点击对话顶部“打开原文”，选择消息文档、此前打开的文件、本地文件或工作区路径；也可选择“粘贴文字”。
-3. 右侧独立阅读；解释/翻译向当前会话提交选段与来源，询问 AI 只追加引用，用户编辑后发送。
-4. 从左侧“文档历史”返回此前的对话与原文。插件不从文档创建新对话。
+### 对话与原文分屏
 
-历史按 PDF、TXT、Markdown、HTML 分组，只显示有记录的格式。同一文档在不同会话中分别记录。只上传未打开的文件、旧书库示例或旧导入条目不会自动加入历史；从本版开始登记，不扫描所有既往会话补造记录。
+左侧继续对话，右侧独立阅读原文。
 
-独立书库、封面、找书、导入书籍、阅读状态筛选、朗读、生词本及伴读入口已从主界面移除。旧书库、划线、笔记与会话数据保留，存储/解析后端暂保留兼容代码。
+<p align="center">
+  <a href="docs/qa/qiaodoc-split-view-v1.png"><img src="docs/qa/qiaodoc-split-view-v1.png" alt="QiaoDoc 左侧原生对话与右侧原文分屏展示" width="840"></a>
+</p>
 
-## 粘贴文字
+### 选段翻译、解释与提问
 
-在“打开原文 → 粘贴文字”中粘贴内容，确认文件名与格式后点击“保存并打开”。默认 TXT，可选 Markdown；文件保存为 UTF-8，位于 **当前会话实际工作区/粘贴文档/**，不是插件书库目录。打开成功后登记历史，并保留在该对话的文件列表中。
+选中原文，即可解释、翻译、复制或询问 AI，无需切换会话。
 
-自动名称取首个非空行的前 24 个字符及本地时间，例如 `实验方法_20261101-143025.txt`；保存前可修改名称。重名添加 `_2`、`_3`，不覆盖原文件。每次粘贴限 2 MiB；不做 AI 命名、排版或格式猜测。Markdown 只渲染已有标记，不恢复网页富文本样式。
+<p align="center">
+  <a href="docs/qa/qiaodoc-selection-v1.png"><img src="docs/qa/qiaodoc-selection-v1.png" alt="选中原文后显示解释、翻译、复制和询问 AI 工具条" width="720"></a>
+</p>
 
-此操作不新建对话、不发送消息、不更改聊天草稿，也不监听系统剪贴板。保存失败保留输入供修改；若保存后打开失败，会提示已保存的文件路径。刷新或切换会话前，未保存的粘贴表单内容不保证保留。
+### 粘贴文字，保存并阅读
 
-## 本地运行与更新
+默认保存为 TXT，可选 Markdown，文件名可修改。文件写入当前会话工作区的“粘贴文档”文件夹；保存本身不发送消息。
 
-```powershell
-cd D:\qiaomu-reader-dsh
-npm ci
-npm run dev:local
-```
+<p align="center">
+  <a href="docs/qa/qiaodoc-paste-text-v1.png"><img src="docs/qa/qiaodoc-paste-text-v1.png" alt="粘贴文字并设置文件名、TXT 或 Markdown 格式后保存并打开" width="380"></a>
+</p>
 
-另一个终端：
+<details>
+<summary>新对话也能打开原文</summary>
 
-```powershell
-npm run dev:browser
-npm run test:browser
-```
+在新对话中，点击“打开原文”选择本地文档或粘贴文字。
 
-隔离回归使用固定回复模型，不验证模型解读质量。测试环境与日用 profile 分开。
+<p align="center">
+  <a href="docs/qa/qiaodoc-new-chat-entry-v1.png"><img src="docs/qa/qiaodoc-new-chat-entry-v1.png" alt="新对话输入区旁的打开原文入口" width="640"></a>
+</p>
 
-更新到桌面 DSH 试用，成功后完全退出（包括托盘）并重新打开：
+</details>
 
-```powershell
-npm run dev:desktop
-# 回退上一轮安装的 reader 包：
-npm run dev:desktop:rollback
-```
+此前打开的文件会按格式保存在“文档历史”中，可返回原会话和原文位置。
 
-详见 [本地测试工作流](docs/LOCAL-TEST-WORKFLOW.md)、[Windows 开发说明](docs/WINDOWS-DEVELOPMENT.md)、[维护记录](docs/MAINTENANCE.md)。
+## 安装与兼容
 
-## 数据与边界
+当前为开发试用版，仅验证 **Windows · DeepSeek Harness 0.2.1-rc.5**。内部安装包名仍为 `qiaomu-reader-dsh`。
 
-文档副本、旧状态和笔记沿用原 `乔木阅读/` 目录，新历史单独保存为 `document-history.json`。历史以会话和来源路径为键；同内容不同来源路径尚不合并。删除原会话或源文件后，记录不能自动重建它们。移除入口不删除旧数据，也不改源文件。
+源码构建、首次安装、更新与回退见 [安装说明](docs/INSTALLATION.md)。安装或更新后，请完全退出 DSH（包括托盘）并重新打开。
 
-当前附件入口支持 PDF/TXT/Markdown/HTML，64 MiB；原生右栏的 EPUB 接入、OCR、全文双语排版、跨设备同步不包含在本版。PDF 页码与页内偏移用于恢复原文；消息锚点使用 rc.5 原生聊天节点及历史加载接口。复杂排版、缩放变化或失效锚点可能影响精度，无法定位时提示，不创建新会话。
+## 已知限制
 
-AI 使用用户选择的 Harness 模型、账号和授权流程。打开文件、历史登记和返回历史本身不调用模型；右栏展示不等于模型已读取全文。真实回答质量需另行验收。
+- HTML 支持预览，但渲染页面内的选段 AI 菜单暂不可用。
+- 暂不提供 EPUB 原生侧栏阅读、扫描件 OCR 或全文双语排版。
+- 未保存的粘贴文字在刷新、切换会话或宿主重启后不保证保留，请及时保存。
+
+更多验证范围与限制见 [阶段验收报告](docs/ACCEPTANCE-REPORT.md)；开发与测试记录见 [维护文档](docs/README.md)。
 
 ## 来源与许可证
 
-本项目保留上游 Git 历史及适用版权、许可证和第三方声明。2026-10-31 至 2026-11-01 的主要修改为：改用原生会话右栏阅读与选段交互、将书库界面精简为文档历史、增加粘贴文字保存为工作区文件，以及补充 Windows 测试和安装流程。具体修改记录见 [维护记录](docs/MAINTENANCE.md)。
+本项目基于 joeseesun 开发和维护的 [乔木阅读 DSH](https://github.com/joeseesun/qiaomu-reader-dsh) 二次开发，主要调整为原生对话内阅读、选段交互、文档历史和粘贴文字保存；由 [4444Hao/qiaodoc-dsh](https://github.com/4444Hao/qiaodoc-dsh) 独立维护，并非上游官方后续版本。
 
-保留 GPL-3.0-only。上游 DSH 基线为 `b549874` / 1.1.2，原产品对照基线为 `qiaomu-reader` 提交 `4a6e6ee1e39966f2af5d831df8b3f4c4fd387ca3`（4.9.2）。第三方代码及旧示例书来源见 [第三方说明](THIRD_PARTY_NOTICES.md)。上游历史能力与验收见 [原阅读功能适配记录](docs/READER-ADAPTATION.md)；它不代表本 fork 当前主界面。
+继续采用 **GPL-3.0-only**，保留原项目适用的版权和许可声明。详见 [LICENSE](LICENSE) 与 [第三方说明](THIRD_PARTY_NOTICES.md)。

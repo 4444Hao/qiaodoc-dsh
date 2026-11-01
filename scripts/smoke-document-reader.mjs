@@ -105,6 +105,9 @@ try {
   const draft = await c.run(() => document.querySelector('[contenteditable="true"]').innerText);
   assert.ok(!draft.trim() || draft.startsWith('KEEP THIS DRAFT'), 'Use a dedicated synthetic test conversation');
   const sessionId = await session(); assert.ok(sessionId);
+  const projection = JSON.parse(await readFile(path.join(root, 'dsh-home/storages/session_projcache/sessions', `${sessionId}.json`), 'utf8'));
+  const workspace = await realpath(path.join(root, 'workspace'));
+  assert.equal(await realpath(projection.record.identity.cwd), workspace, 'Select release/dev/workspace in native DSH before running this writing smoke test');
   const originalAddress = await c.run(() => document.querySelector('[data-textpreview-url]').getAttribute('data-textpreview-url'));
   assert.ok(originalAddress.includes(encodeURIComponent(sessionId)));
   await clearComposer();
@@ -261,9 +264,18 @@ try {
 
   // Unlike PDF reads, paste writes real files: require this Session's actual cwd
   // to be the project-local test workspace before invoking the save operation.
-  const projection = JSON.parse(await readFile(path.join(root, 'dsh-home/storages/session_projcache/sessions', `${sessionId}.json`), 'utf8'));
-  const workspace = await realpath(path.join(root, 'workspace'));
-  assert.equal(await realpath(projection.record.identity.cwd), workspace, 'Select release/dev/workspace in native DSH before testing pasted documents');
+  const longName = `QMR-first-scroll-${Date.now()}.md`;
+  const longPath = path.join(workspace, longName);
+  await writeFile(longPath, '# QMR early scroll regression\n\n' + Array.from({ length: 180 }, (_, i) => `## Section ${i + 1}\n\nQMR-EARLY-${i + 1}: Keep the first scroll while the initial history write is pending.\n\n`).join(''));
+  await click('打开原文');
+  await c.run(() => { const input = document.querySelector('.qmr-doc-picker input[type="text"]'); input.focus(); input.select(); });
+  await c.call('Input.insertText', { text: longPath });
+  await new Promise(resolve => setTimeout(resolve, 120));
+  await click('打开原文', '.qmr-doc-picker');
+  await wait(() => c.run(() => document.querySelector('[data-textpreview-body]')?.textContent.includes('QMR-EARLY-180')), 'fresh long Markdown');
+  await c.run(() => { const port = document.querySelector('[data-textpreview-body]'); port.scrollTop = .7 * (port.scrollHeight - port.clientHeight); });
+  await wait(async () => (await historyEntries()).some(entry => entry.sessionId === sessionId && entry.title === longName && Math.abs((entry.position?.ratio ?? -1) - .7) < .08), 'first scroll survives initial Host write');
+  results.push('A fresh long Markdown keeps an immediate first scroll while initial history persistence is in flight');
   const pasteDirectory = path.join(workspace, '粘贴文档');
   const listPastes = async () => { try { return await readdir(pasteDirectory); } catch (error) { if (error.code === 'ENOENT') return []; throw error; } };
   const edit = async (selector, value) => {

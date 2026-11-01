@@ -1,10 +1,10 @@
 {
   "name": "qiaomu-reader-dsh",
-  "version": "1.2.0-dev.2",
+  "version": "1.2.0-dev.5",
   "private": true,
   "type": "module",
   "engines": {
-    "dsh": "0.2.1-rc.2 || 0.2.1-rc.3 || 0.2.1-rc.4 || 0.2.1-rc.5"
+    "dsh": "0.2.1-rc.5"
   },
   "description": "DSH 对话内文档阅读与选段交互，按格式查看文档历史并返回原对话。",
   "exports": {
@@ -19,9 +19,15 @@
     "client.js",
     "cordis.patch.yml",
     "icon.svg",
+    "assets/qiaodoc-icon-256.png",
     "index.js",
     "locale/*.json",
-    "docs/qa/adaptation-*.png",
+    "docs/qa/qiaodoc-split-view-v1.png",
+    "docs/qa/qiaodoc-selection-v1.png",
+    "docs/qa/qiaodoc-paste-text-v1.png",
+    "docs/qa/qiaodoc-new-chat-entry-v1.png",
+    "screenshots.json",
+    "docs/INSTALLATION.md",
     "docs/READER-ADAPTATION.md",
     "THIRD_PARTY_NOTICES.md"
   ],
@@ -72,7 +78,7 @@
   },
   "peerDependencies": {
     "@deepseek-ai/cordis": "~4.0.5",
-    "@deepseek-ai/dsh-typert-protocol": "0.2.1-rc.2 || 0.2.1-rc.3 || 0.2.1-rc.4 || 0.2.1-rc.5"
+    "@deepseek-ai/dsh-typert-protocol": "0.2.1-rc.5"
   },
   "peerDependenciesMeta": {
     "@deepseek-ai/cordis": {

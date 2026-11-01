@@ -13,9 +13,11 @@ import { build } from 'esbuild';
 import { mkdir, readFile, writeFile, rm } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { QIAODOC_ICON_SVG } from '../src/core/brand.js';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(HERE, '..');
+await writeFile(path.join(ROOT, 'icon.svg'), QIAODOC_ICON_SVG, 'utf8');
 const CLIENT_ID = 'qiaomu-reader-dsh';
 const STAGE = path.join(ROOT, 'build');
 

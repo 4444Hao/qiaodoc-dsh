@@ -2,6 +2,8 @@
 url: https://github.com/4444Hao/qiaodoc-dsh
 name: 4444Hao/qiaodoc-dsh
 category: docs
+icon: https://raw.githubusercontent.com/4444Hao/qiaodoc-dsh/main/assets/qiaodoc-icon-256.png
+# The icon is local until the maintainer pushes it; public access is not verified yet.
 description:
   en: Read documents beside native DSH chats, discuss selected passages, and return through document history.
   zh: 在 DSH 原生对话旁阅读文档、解释翻译选段，通过文档历史返回原会话。

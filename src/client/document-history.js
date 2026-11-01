@@ -120,16 +120,23 @@ export function createDocumentHistory(data) {
             const restore = restores.get(key);
             if (restore) await view.restore(restore);
             if (!visible()) return;
-            lastPosition = positionOf(root);
-            await save({ ...document, opened: true, position: lastPosition });
+            const initialPosition = lastPosition = positionOf(root);
+            await save({ ...document, opened: true, position: initialPosition });
             recorded = true;
+            // The first write crosses the Host boundary. Keep scrolling that
+            // happened while it was in flight, including a just-detached view.
+            if (visible()) lastPosition = positionOf(root);
+            if (lastPosition && JSON.stringify(lastPosition) !== JSON.stringify(initialPosition)) {
+              await save({ ...document, position: lastPosition });
+            }
           }
         } catch (error) { emit({ error: error.message }); }
         finally { saving = false; }
       };
       const scroll = () => {
-        if (!recorded || !visible() || restoring) return;
+        if (!visible() || restoring) return;
         lastPosition = positionOf(root);
+        if (!recorded) return;
         clearTimeout(timer);
         timer = setTimeout(() => { if (visible()) void save({ ...document, position: lastPosition }).catch(() => {}); }, 450);
       };
