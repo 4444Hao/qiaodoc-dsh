@@ -9,12 +9,12 @@ import { READER_REMOTE_METHODS } from '../core/reader-remotes.js';
 import { QiaoDocMark } from './brand.js';
 
 const ID = 'qiaomu-reader';
-const remoteCodec = () => ({ mode: 'strict', typeSymbol: 'qiaomu-reader-dsh#json',
+const remoteCodec = () => ({ mode: 'strict', typeSymbol: 'qiaodoc-dsh#json',
   create: () => ({ parse: value => value, safeParse: value => ({ success: true, data: value }) }) });
 const REMOTE = {
-  package: 'qiaomu-reader-dsh',
+  package: 'qiaodoc-dsh',
   descriptors: READER_REMOTE_METHODS.map(method => ({
-    id: `qiaomu-reader-dsh#qiaomuReader/${method}`, service: 'qiaomuReader', namespace: 'qiaomuReader', method,
+    id: `qiaodoc-dsh#qiaomuReader/${method}`, service: 'qiaomuReader', namespace: 'qiaomuReader', method,
     invocation: { kind: 'direct' },
     parameters: ['info', 'library', 'speechVoices', 'documentHistory'].includes(method) ? [] : [{ name: 'request', wire: 'request', source: 'json', codec: remoteCodec() }],
     result: { mode: 'src-json' }, cancellation: { parameter: 'signal' },

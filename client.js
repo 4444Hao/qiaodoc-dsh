@@ -1,5 +1,5 @@
 window.__ModuleLoader__.load({
-  id: "qiaomu-reader-dsh",
+  id: "qiaodoc-dsh",
   factory: (require) => {
     const module = { exports: {} };
     const exports = module.exports;
@@ -113115,13 +113115,13 @@ var READER_REMOTE_METHODS = [
 var ID = "qiaomu-reader";
 var remoteCodec = () => ({
   mode: "strict",
-  typeSymbol: "qiaomu-reader-dsh#json",
+  typeSymbol: "qiaodoc-dsh#json",
   create: () => ({ parse: (value) => value, safeParse: (value) => ({ success: true, data: value }) })
 });
 var REMOTE = {
-  package: "qiaomu-reader-dsh",
+  package: "qiaodoc-dsh",
   descriptors: READER_REMOTE_METHODS.map((method) => ({
-    id: `qiaomu-reader-dsh#qiaomuReader/${method}`,
+    id: `qiaodoc-dsh#qiaomuReader/${method}`,
     service: "qiaomuReader",
     namespace: "qiaomuReader",
     method,

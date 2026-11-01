@@ -85,7 +85,7 @@ function Invoke-Prepare {
   $model = New-Candidate './test/fixtures/dsh-document-model'
   & $DshCli plugin --profile web add $reader.path $model.path
   Assert-Exit 'Isolated plugin installation'
-  $installed = Join-Path $env:DSH_HOME 'profiles/web/node_modules/qiaomu-reader-dsh'
+  $installed = Join-Path $env:DSH_HOME 'profiles/web/node_modules/qiaodoc-dsh'
   $bundles = @{}
   foreach ($name in @('index.js', 'client.js')) {
     $sourceHash = Get-Sha256 (Join-Path $repo $name)

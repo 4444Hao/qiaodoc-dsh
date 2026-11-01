@@ -49,7 +49,7 @@
 
 ## 安装与兼容
 
-当前为开发试用版，仅验证 **Windows · DeepSeek Harness 0.2.1-rc.5**。内部安装包名仍为 `qiaomu-reader-dsh`。
+当前为开发试用版，仅验证 **Windows · DeepSeek Harness 0.2.1-rc.5**。内部安装包名为 `qiaodoc-dsh`。
 
 源码构建、首次安装、更新与回退见 [安装说明](docs/INSTALLATION.md)。安装或更新后，请完全退出 DSH（包括托盘）并重新打开。
 

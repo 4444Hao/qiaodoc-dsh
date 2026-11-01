@@ -19,7 +19,7 @@ import { fileURLToPath } from 'node:url';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(HERE, '..');
-const CLIENT_ID = 'qiaomu-reader-dsh';
+const CLIENT_ID = 'qiaodoc-dsh';
 
 /** 内存 stub：UI 层尚未交付时替身，字段与真实契约一致。 */
 const UI_STUB = {

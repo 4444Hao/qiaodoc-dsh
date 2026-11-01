@@ -67,7 +67,7 @@ try {
       $source = Join-Path $profile $name
       if (Test-Path -LiteralPath $source -PathType Leaf) { Copy-Item -LiteralPath $source -Destination $backup }
     }
-    $installed = Join-Path $profile 'node_modules/qiaomu-reader-dsh'
+    $installed = Join-Path $profile 'node_modules/qiaodoc-dsh'
     if (!(Test-Path -LiteralPath (Join-Path $installed 'package.json'))) { throw 'Reader baseline missing; preserve a rollback package before installation.' }
     $oldPacked = & node $npmCli pack $installed --ignore-scripts --pack-destination $backup --json
     if ($LASTEXITCODE -ne 0) { throw 'Could not pack installed reader for rollback. Desktop was not modified.' }

@@ -18,7 +18,7 @@ import { QIAODOC_ICON_SVG } from '../src/core/brand.js';
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(HERE, '..');
 await writeFile(path.join(ROOT, 'icon.svg'), QIAODOC_ICON_SVG, 'utf8');
-const CLIENT_ID = 'qiaomu-reader-dsh';
+const CLIENT_ID = 'qiaodoc-dsh';
 const STAGE = path.join(ROOT, 'build');
 
 const dev = process.argv.includes('--dev');
@@ -156,7 +156,7 @@ async function summary() {
 }
 
 async function main() {
-  process.stdout.write('构建 乔木阅读 (qiaomu-reader-dsh)\n');
+  process.stdout.write('构建 乔木阅读 (qiaodoc-dsh)\n');
   await rm(STAGE, { recursive: true, force: true });
   await buildHost();
   await buildClient();

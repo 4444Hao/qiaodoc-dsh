@@ -102,7 +102,7 @@ test('client mounts Reader Remote descriptors when Harness remote is available',
   app.provide('remote', { $mount: async (value) => { descriptor = value; } });
   app.start();
   await Promise.resolve();
-  assert.equal(descriptor.package, 'qiaomu-reader-dsh');
+  assert.equal(descriptor.package, 'qiaodoc-dsh');
   assert.equal(descriptor.descriptors.find(item => item.method === 'speechVoices').parameters.length, 0);
   assert.deepEqual(Array.from(descriptor.descriptors, (item) => item.method), [
     'info', 'library', 'importBook', 'importSessionDocument', 'removeBook', 'restoreBook', 'speechVoices', 'speechAudio', 'sendToAnki', 'searchBooks', 'downloadBook', 'loadState', 'saveState', 'readBookBytes', 'highlights', 'exportNotes', 'setReadingContext', 'documentHistory', 'recordDocumentHistory', 'createPastedDocument',
