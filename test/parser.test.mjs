@@ -7,7 +7,7 @@
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { crc32 as zlibCrc32, deflateRawSync } from "node:zlib";
+import { makeZip, makeEpubFixture, FIXTURE_COVER } from "./helpers/epub-fixture.mjs";
 
 import { openZip } from "../src/core/zip.js";
 import { parseEpub } from "../src/core/epub.js";
@@ -20,115 +20,9 @@ import {
   toPlainText,
 } from "../src/core/html.js";
 
-const STARTER_BOOKS_PATH = new URL("../media/starter-books.js", import.meta.url);
 
 // ── 测试用的极简 ZIP 打包器 ────────────────────────────────────────────────
 // 故意不复用 src/core/zip.js 里的实现，这样「造包」与「读包」互为对照。
-
-/**
- * 计算 CRC32（优先用 node 内置实现）。
- * @param {Buffer} buffer 字节
- * @returns {number} CRC32
- */
-function crc32(buffer) {
-  if (typeof zlibCrc32 === "function") return zlibCrc32(buffer) >>> 0;
-  const table = new Uint32Array(256);
-  for (let i = 0; i < 256; i += 1) {
-    let c = i;
-    for (let k = 0; k < 8; k += 1) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1;
-    table[i] = c >>> 0;
-  }
-  let crc = 0xffffffff;
-  for (const byte of buffer) crc = table[(crc ^ byte) & 0xff] ^ (crc >>> 8);
-  return (crc ^ 0xffffffff) >>> 0;
-}
-
-/**
- * 手搓一个最小 zip。
- * @param {{name: string, data?: string | Buffer, method?: 'store' | 'deflate'}[]} files 条目
- * @param {{comment?: string, dataDescriptor?: boolean, breakZip64?: boolean, badCrc?: boolean, localExtra?: number, utf8Flag?: boolean}} [options] 选项
- * @returns {Uint8Array} zip 字节
- */
-function makeZip(files, options = {}) {
-  const localParts = [];
-  const centralParts = [];
-  let offset = 0;
-
-  for (const file of files) {
-    const name = Buffer.from(file.name, "utf8");
-    const data = Buffer.isBuffer(file.data) ? file.data : Buffer.from(file.data ?? "", "utf8");
-    const method = file.method === "deflate" ? 8 : 0;
-    const payload = method === 8 ? deflateRawSync(data) : data;
-    const flags = (options.utf8Flag === false ? 0 : 0x0800) | (options.dataDescriptor ? 0x0008 : 0);
-    const crc = options.badCrc ? 0xdeadbeef : crc32(data);
-    // 本地头可以带一段中央目录里没有的 extra，用来验证数据起点必须按本地头算。
-    const localExtra = Buffer.alloc(options.localExtra ?? 0);
-    if (localExtra.length >= 4) localExtra.writeUInt16LE(0x9999, 0);
-
-    const local = Buffer.alloc(30);
-    local.writeUInt32LE(0x04034b50, 0);
-    local.writeUInt16LE(20, 4);
-    local.writeUInt16LE(flags, 6);
-    local.writeUInt16LE(method, 8);
-    local.writeUInt16LE(0, 10);
-    local.writeUInt16LE(0x21, 12);
-    // bit 3 置位时，本地头里的 crc/尺寸按规范写 0，真实值只存在于中央目录。
-    local.writeUInt32LE(options.dataDescriptor ? 0 : crc, 14);
-    local.writeUInt32LE(options.dataDescriptor ? 0 : payload.length, 18);
-    local.writeUInt32LE(options.dataDescriptor ? 0 : data.length, 22);
-    local.writeUInt16LE(name.length, 26);
-    local.writeUInt16LE(localExtra.length, 28);
-    localParts.push(local, name, localExtra, payload);
-    let consumed = local.length + name.length + localExtra.length + payload.length;
-
-    if (options.dataDescriptor) {
-      const descriptor = Buffer.alloc(16);
-      descriptor.writeUInt32LE(0x08074b50, 0);
-      descriptor.writeUInt32LE(crc, 4);
-      descriptor.writeUInt32LE(payload.length, 8);
-      descriptor.writeUInt32LE(data.length, 12);
-      localParts.push(descriptor);
-      consumed += 16;
-    }
-
-    const central = Buffer.alloc(46);
-    central.writeUInt32LE(0x02014b50, 0);
-    central.writeUInt16LE(20, 4);
-    central.writeUInt16LE(20, 6);
-    central.writeUInt16LE(flags, 8);
-    central.writeUInt16LE(method, 10);
-    central.writeUInt16LE(0, 12);
-    central.writeUInt16LE(0x21, 14);
-    central.writeUInt32LE(crc, 16);
-    central.writeUInt32LE(payload.length, 20);
-    central.writeUInt32LE(data.length, 24);
-    central.writeUInt16LE(name.length, 28);
-    central.writeUInt16LE(0, 30);
-    central.writeUInt16LE(0, 32);
-    central.writeUInt16LE(0, 34);
-    central.writeUInt16LE(0, 36);
-    central.writeUInt32LE(0, 38);
-    // 打开 zip64 哨兵开关时写 0xFFFFFFFF，且不给 zip64 扩展字段。
-    central.writeUInt32LE(options.breakZip64 ? 0xffffffff : offset, 42);
-    centralParts.push(central, name);
-
-    offset += consumed;
-  }
-
-  const centralBuffer = Buffer.concat(centralParts);
-  const comment = Buffer.from(options.comment ?? "", "utf8");
-  const eocd = Buffer.alloc(22);
-  eocd.writeUInt32LE(0x06054b50, 0);
-  eocd.writeUInt16LE(0, 4);
-  eocd.writeUInt16LE(0, 6);
-  eocd.writeUInt16LE(files.length, 8);
-  eocd.writeUInt16LE(files.length, 10);
-  eocd.writeUInt32LE(centralBuffer.length, 12);
-  eocd.writeUInt32LE(offset, 16);
-  eocd.writeUInt16LE(comment.length, 20);
-
-  return new Uint8Array(Buffer.concat([...localParts, centralBuffer, eocd, comment]));
-}
 
 // ── 1. zip ────────────────────────────────────────────────────────────────
 
@@ -228,116 +122,54 @@ test("zip：坏输入给出可读错误，zip64 哨兵能识别", async () => {
   await assert.rejects(openZip(zip64Sentinels), /ZIP64/);
 });
 
-// ── 2. 六本内置书 ─────────────────────────────────────────────────────────
+// ── 2. 合成 EPUB：元数据、目录、资源与 HTML 管线 ────────────────────────
 
-test("epub：六本内置公版书全部能解析，目录与 spine 对齐", async () => {
-  const { STARTER_BOOKS, decodeStarterBook } = await import(STARTER_BOOKS_PATH.href);
-  assert.equal(STARTER_BOOKS.length, 6);
-
-  for (const starter of STARTER_BOOKS) {
-    const book = await parseEpub(decodeStarterBook(starter));
-
-    assert.ok(book.title && book.title.trim(), `${starter.id} 应有标题`);
-    assert.ok(book.chapters.length > 0, `${starter.id} 应有章节`);
-    assert.ok(book.toc.length > 0, `${starter.id} 应有目录`);
-    assert.ok(book.coverHref, `${starter.id} 应有封面`);
-    assert.ok(typeof book.rootDir === "string", `${starter.id} 应有 rootDir`);
-    assert.equal(book.rootDir, "EPUB/");
-
-    // 章节字段完整、index 连续、坐标在 zip 内真实存在。
-    book.chapters.forEach((chapter, index) => {
-      assert.equal(chapter.index, index);
-      assert.ok(chapter.href, "章节应有 href");
-      assert.ok(!chapter.href.includes(".."), "章节 href 不应残留 ../");
-      assert.ok(!chapter.href.startsWith("/"), "章节 href 应为 zip 根相对路径");
-      assert.equal(typeof chapter.xhtml, "string");
-      assert.ok(chapter.xhtml.length > 0);
-      assert.equal(typeof chapter.linear, "boolean");
-      assert.equal(typeof chapter.label, "string");
-      assert.ok(book.resources[chapter.href], `资源表应包含 ${chapter.href}`);
-      assert.ok(book.resources[chapter.href].mediaType);
-    });
-
-    // lead 要求：每个 toc 叶子节点都能在 chapters 里找到对应项（允许带 #frag）。
-    const hrefs = new Set(book.chapters.map((chapter) => chapter.href));
-    const leaves = [];
-    const walk = (nodes) => {
-      for (const node of nodes) {
-        if (node.children && node.children.length) walk(node.children);
-        else leaves.push(node);
-      }
-    };
-    walk(book.toc);
-    assert.ok(leaves.length > 0, `${starter.id} 目录应有叶子节点`);
-    for (const leaf of leaves) {
-      assert.ok(leaf.href, `${starter.id} 目录叶子应有 href`);
-      assert.ok(
-        hrefs.has(leaf.href.split("#")[0]),
-        `${starter.id} 目录 href ${leaf.href} 应对应某个 spine 章节`,
-      );
-    }
-
-    // 封面必须是真实存在的图片字节。
-    const coverBytes = await book.resourceBytes(book.coverHref);
-    assert.ok(coverBytes && coverBytes.length > 0, `${starter.id} 封面字节可读`);
-    assert.ok(/^image\//.test(book.resources[book.coverHref].mediaType) || book.coverHref.endsWith(".jpg"));
-    assert.ok(starter.cover?.startsWith('data:image/'), `${starter.id} 书库元数据应包含真实封面`);
-    assert.deepEqual(
-      Buffer.from(starter.cover.split(',')[1], 'base64'),
-      Buffer.from(coverBytes),
-      `${starter.id} 书库封面应与 EPUB 内的图片一致`,
-    );
-
-    assert.equal(await book.resourceBytes("EPUB/不存在.png"), undefined);
+test("epub：合成样本目录与 spine 对齐，资源和封面字节可读", async () => {
+  const book = await parseEpub(makeEpubFixture());
+  assert.equal(book.rootDir, 'EPUB/');
+  assert.equal(book.chapters.length, 3);
+  assert.equal(book.toc.length, 3);
+  const hrefs = new Set(book.chapters.map(chapter => chapter.href));
+  for (const [index, chapter] of book.chapters.entries()) {
+    assert.equal(chapter.index, index);
+    assert.ok(chapter.xhtml.length > 0);
+    assert.equal(chapter.linear, true);
+    assert.ok(book.resources[chapter.href]);
+    assert.ok(hrefs.has(book.toc[index].href));
+    assert.equal(book.toc[index].children.length, 0);
   }
+  assert.equal(book.coverHref, 'EPUB/cover.png');
+  assert.deepEqual(Buffer.from(await book.resourceBytes(book.coverHref)), Buffer.from(FIXTURE_COVER.split(',')[1], 'base64'));
+  assert.equal(await book.resourceBytes('EPUB/missing.png'), undefined);
 });
 
-test("epub：内置书目录来自 nav 文档而非兜底，元数据正确", async () => {
-  const { STARTER_BOOKS, decodeStarterBook } = await import(STARTER_BOOKS_PATH.href);
-  const dao = STARTER_BOOKS.find((item) => item.id === "gutenberg-7337");
-  assert.ok(dao, "应能找到道德经");
-  const book = await parseEpub(decodeStarterBook(dao));
-
-  assert.equal(book.title, "道德经");
-  assert.equal(book.author, "老子");
-  assert.equal(book.language, "zh");
-  assert.equal(book.chapters.length, 82);
-  assert.equal(book.toc.length, 82);
-  // nav 里的真实标签，而不是兜底生成的「第 N 章」。
-  assert.equal(book.toc[0].label, "第一章");
-  assert.equal(book.toc[0].href, "EPUB/s0.xhtml");
-  assert.deepEqual(book.toc[0].children, []);
-  assert.equal(book.identifier, "urn:qbr:starter:7337");
+test("epub：合成样本采用 nav 标签而非兜底，并保留元数据", async () => {
+  const book = await parseEpub(makeEpubFixture());
+  assert.equal(book.title, '合成文档');
+  assert.equal(book.author, 'QiaoDoc 测试');
+  assert.equal(book.language, 'zh');
+  assert.equal(book.identifier, 'urn:qiaodoc:fixture');
+  assert.equal(book.toc[0].label, '导航标签一');
+  assert.equal(book.toc[0].href, 'EPUB/s0.xhtml');
+  assert.notEqual(book.toc[0].label, book.chapters[0].label);
 });
 
-test("html：真实章节跑完整管线（extractBody→sanitize→纯文本→高亮→absolutize）", async () => {
-  const { STARTER_BOOKS, decodeStarterBook } = await import(STARTER_BOOKS_PATH.href);
-  const starter = STARTER_BOOKS.find((item) => item.id === "gutenberg-11");
-  const book = await parseEpub(decodeStarterBook(starter));
-
-  let textTotal = 0;
-  let aliceHits = 0;
+test("html：合成章节跑完整管线（extractBody→sanitize→纯文本→高亮→absolutize）", async () => {
+  const book = await parseEpub(makeEpubFixture());
+  let textTotal = 0, hits = 0;
   for (const chapter of book.chapters) {
     const clean = sanitizeHtml(extractBody(chapter.xhtml));
-    assert.ok(clean.length > 0, `${chapter.href} 清洗后不应为空`);
-    assert.ok(!/<\s*script/i.test(clean), `${chapter.href} 不应残留脚本`);
-    assert.ok(!/javascript:/i.test(clean), `${chapter.href} 不应残留 javascript:`);
-
-    const text = toPlainText(clean);
-    assert.ok(text.length > 0, `${chapter.href} 应有纯文本`);
-    textTotal += text.length;
-
-    const hit = highlightTerms(clean, "Alice");
-    aliceHits += hit.count;
-    if (hit.count > 0) assert.ok(hit.html.includes('<mark class="qm-hit">Alice</mark>'));
-    // 高亮不能改动标签数量。
+    assert.ok(clean.length > 0);
+    assert.doesNotMatch(clean, /<\s*script|javascript:/i);
+    textTotal += toPlainText(clean).length;
+    const hit = highlightTerms(clean, 'Alice');
+    hits += hit.count;
+    assert.ok(hit.html.includes('<mark class="qm-hit">Alice</mark>'));
     assert.equal((hit.html.match(/</g) || []).length, (clean.match(/</g) || []).length + hit.count * 2);
-
-    const abs = absolutize(clean, book.rootDir);
-    assert.ok(!/(?:src|href)="\.\./.test(abs), `${chapter.href} 不应残留 ../ 相对路径`);
+    assert.doesNotMatch(absolutize(clean, book.rootDir), /(?:src|href)="\.\.\//);
   }
-  assert.ok(textTotal > 10000, `全文纯文本应可观，实际 ${textTotal}`);
-  assert.ok(aliceHits > 50, `“Alice” 应大量命中，实际 ${aliceHits}`);
+  assert.ok(textTotal > 10000);
+  assert.ok(hits > 50);
 });
 
 // ── 3. 合成 EPUB：../ 与 %20 归一化 ────────────────────────────────────────

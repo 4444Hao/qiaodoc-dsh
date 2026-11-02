@@ -7,7 +7,7 @@ import { mergeManagedNotes } from '../src/core/markdown-notes.js';
 import { toMarkdown } from '../src/ui/format.js';
 import { addHighlight, createBookState } from '../src/core/state.js';
 import { createDataLayer } from '../src/client/bridge.js';
-import { STARTER_BOOKS, decodeStarterBook } from '../media/starter-books.js';
+import { makeEpubFixture, FIXTURE_COVER } from './helpers/epub-fixture.mjs';
 
 function tinyPdf() {
   const stream = 'BT /F1 18 Tf 40 100 Td (Hello PDF) Tj ET';
@@ -109,11 +109,11 @@ test('EPUB import sends its embedded cover to the host library', async () => {
   };
   const data = createDataLayer({ host });
   await data.refreshLibrary();
-  const bytes = decodeStarterBook(STARTER_BOOKS[0]);
+  const bytes = makeEpubFixture();
   const result = await data.importBook({ name: 'my-book.epub', arrayBuffer: async () => bytes.buffer });
   assert.equal(result.ok, true);
-  assert.equal(uploadedCover, STARTER_BOOKS[0].cover);
-  assert.equal(result.book.cover, STARTER_BOOKS[0].cover);
+  assert.equal(uploadedCover, FIXTURE_COVER);
+  assert.equal(result.book.cover, FIXTURE_COVER);
 });
 
 test('connecting Reader Remote migrates an offline TXT and its highlights', async () => {

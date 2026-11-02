@@ -1,5 +1,7 @@
 # Release validation / 发布验证
 
+> 历史归档（2026-11-02）：保留上游阶段的版本、环境与结论，不代表当前 QiaoDoc 功能或安装步骤。当前资料见 [维护文档](../README.md)，历史路径说明见 [归档索引](README.md)。
+
 Date: 2026-09-30. Platform: macOS. Host: DeepSeek Harness 0.2.0-rc.2.
 
 ## Build and package

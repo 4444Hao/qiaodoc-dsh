@@ -1,6 +1,6 @@
 {
   "name": "qiaodoc-dsh",
-  "version": "1.2.0-dev.6",
+  "version": "1.2.0-dev.7",
   "private": true,
   "type": "module",
   "engines": {
@@ -28,13 +28,11 @@
     "docs/qa/qiaodoc-new-chat-entry-v1.png",
     "screenshots.json",
     "docs/INSTALLATION.md",
-    "docs/READER-ADAPTATION.md",
     "THIRD_PARTY_NOTICES.md"
   ],
   "scripts": {
     "build": "node scripts/build.mjs",
     "test": "node --test test/*.test.mjs",
-    "books": "node scripts/make-starter-books.mjs",
     "resources": "node scripts/generate-pdf-resources.mjs",
     "prepack": "npm run build && node scripts/verify-package.mjs",
     "check": "npm run build && npm test && node scripts/verify-package.mjs",
@@ -99,8 +97,9 @@
   "keywords": [
     "dsh-plugin",
     "deepseek-harness",
-    "qiaomu",
-    "epub",
-    "reading"
+    "document-reader",
+    "pdf",
+    "markdown",
+    "translation"
   ]
 }

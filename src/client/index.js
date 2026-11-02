@@ -1,6 +1,6 @@
 /** Conversation documents plus a small history panel; no independent reader/chat. */
 import * as React from 'react';
-import { createDataLayer } from './bridge.js';
+import { createDocumentData } from './bridge.js';
 import { remoteHostApi } from './host-api.js';
 import { installDocumentReader, DOCUMENT_MESSAGES } from './document-reader.js';
 import { createDocumentHistory } from './document-history.js';
@@ -22,7 +22,7 @@ const REMOTE = {
 };
 export const inject = ['slots', 'layout', 'remote'];
 export function apply(ctx) {
-  const data = createDataLayer();
+  const data = createDocumentData();
   const history = createDocumentHistory(data);
   let disposed = false;
   let translate = key => HISTORY_MESSAGES.zh[key] || key;

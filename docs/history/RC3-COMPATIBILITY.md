@@ -1,5 +1,8 @@
 # DeepSeek Harness rc3 验证记录
 
+
+> 历史归档（2026-11-02）：保留上游阶段的版本、环境与结论，不代表当前 QiaoDoc 功能或安装步骤。当前资料见 [维护文档](../README.md)，历史路径说明见 [归档索引](README.md)。
+
 日期：2026-10-28。插件：`qiaomu-reader-dsh@1.1.1`。宿主：官方 macOS DeepSeek Harness **0.2.1-rc.3**，使用应用内自带 CLI 和 runtime。
 
 ## 本次变更

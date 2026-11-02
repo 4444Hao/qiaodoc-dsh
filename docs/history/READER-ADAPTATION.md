@@ -1,5 +1,7 @@
 # Obsidian Reader → DeepSeek Harness 阅读流程
 
+> 历史归档（2026-11-02）：保留上游阶段的版本、环境与结论，不代表当前 QiaoDoc 功能或安装步骤。当前资料见 [维护文档](../README.md)，历史路径说明见 [归档索引](README.md)。
+
 ## 2026-10-27 稳定版差异适配：1.1.0 第一阶段本地候选
 
 比对基线：原版稳定提交 `4a6e6ee1e39966f2af5d831df8b3f4c4fd387ca3`（4.9.2）；仅用 Git 对象读取，未修改原版工作区，也未混入其未提交的 AI 登录改动。DSH 起点 1.0.4、60 项测试；初次开发目录没有 `.git`；现已核对已有远端 `joeseesun/qiaomu-reader-dsh`，在独立检出上整合其 CI、发布元数据及许可证。回退源码快照：`/tmp/qiaomu-reader-dsh-before-adaptation-20261027.tgz`，此前安装包 `/tmp/qiaomu-reader-dsh-1.0.4.tgz`。
@@ -23,7 +25,7 @@
 
 - **代码和自动测试**：`npm run build` 与 `npm test`，84/84 通过；`npm audit` 0 漏洞。新增测试在 `test/library-recovery.test.mjs`、`text-import.test.mjs`、`speech.test.mjs`、`vocabulary-discovery.test.mjs`、`offline-migration.test.mjs`，原有套件保留。
 - **实际宿主**：macOS，应用 bundled CLI `dsh --version` = **0.2.1-rc.3**；`DSH_HOME=/tmp/qmr-adaptation-qa-20261027`，profile `reader-qa`，从官方 Web profile 初始化并用 tgz 安装。测试书库通过 patch 指向 `/tmp/qmr-adaptation-qa-20261027/workspace/乔木阅读`；未修改日用 profile 配置。
-- **运行截图**：[书库](qa/adaptation-library.png)、[朗读](qa/adaptation-speech.png)、[生词本](qa/adaptation-vocabulary.png)、[390px 窄屏正文](qa/adaptation-mobile-reader.png)、[窄屏朗读](qa/adaptation-mobile-speech.png)。均来自真实 DSH Web surface，窄屏为浏览器尺寸模拟，不是实体手机。生词释义为手填，不能当 AI 输出证据。
+- **运行截图**：[书库](../qa/adaptation-library.png)、[朗读](../qa/adaptation-speech.png)、[生词本](../qa/adaptation-vocabulary.png)、[390px 窄屏正文](../qa/adaptation-mobile-reader.png)、[窄屏朗读](../qa/adaptation-mobile-speech.png)。均来自真实 DSH Web surface，窄屏为浏览器尺寸模拟，不是实体手机。生词释义为手填，不能当 AI 输出证据。
 - **数据恢复**：真实导入样本 `40ec44a7f31c3234` 的 MD 原文件、state JSON、自动 Markdown 均在隔离书库；词条 `reader` 与 `bzza2u-niyw2y` 划线回跳一致。导出的 Markdown 在 `/tmp/qmr-vocabulary-export.md`。
 - **大库反例修复**：初次仅窗口化仍因 controller 每次复制/查找整库导致主线程卡顿。改为不可变数组缓存和 ID Map；同一实际宿主复测末尾滚动和搜索通过，测试还约束元数据读取次数避免二次复杂度回归。10,000 条临时元数据已清除，原测试库恢复。
 - **接口/语言反例修复**：音色接口的 Remote descriptor 误声明一个参数，实际调用被拒；修为零参数并补契约测试。DSH LocaleFace 是字面键查询，嵌套字典需展平；实际 slot 已返回“选择音色后开始朗读”，不再依赖中文 fallback。中英文平键注册均有测试，英文整页未人工验收。

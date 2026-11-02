@@ -8,10 +8,9 @@
  *   2. 外壳契约：确认产物是 `window.__ModuleLoader__.load({ id, factory })` 形式，
  *      且只外部化平台种子表里的 react——绝不能 require 任何 `@deepseek-ai/*` 包。
  *
- * 之所以独立成脚本：它可以**在没有 UI 层时**用内存 stub 代替真实模块，
- * 从而在任何阶段都能验证「集成层能否被打包」，而不必等所有队友交付。
+ * 直接构建当前实际 UI，不替换文档历史或格式化模块。
  *
- * 用法：node scripts/check-client.mjs [--stub-ui]
+ * 用法：node scripts/check-client.mjs
  */
 import { build } from 'esbuild';
 import path from 'node:path';
@@ -20,29 +19,6 @@ import { fileURLToPath } from 'node:url';
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(HERE, '..');
 const CLIENT_ID = 'qiaodoc-dsh';
-
-/** 内存 stub：UI 层尚未交付时替身，字段与真实契约一致。 */
-const UI_STUB = {
-  name: 'qmr-ui-stub',
-  setup(pluginBuild) {
-    const stub = `
-      import * as React from 'react';
-      export function ReaderOverlay() { return React.createElement('div', null, 'stub'); }
-      export function createUiStore(initial) {
-        let state = initial;
-        const listeners = new Set();
-        return {
-          get: () => state,
-          set: (patch) => { state = { ...state, ...patch }; for (const fn of [...listeners]) fn(); },
-          subscribe: (fn) => { listeners.add(fn); return () => listeners.delete(fn); },
-          select: (fn) => fn(state),
-        };
-      }
-    `;
-    pluginBuild.onResolve({ filter: /\.\.\/ui\// }, (args) => ({ path: args.path, namespace: 'qmr-stub' }));
-    pluginBuild.onLoad({ filter: /.*/, namespace: 'qmr-stub' }, () => ({ contents: stub, loader: 'js' }));
-  },
-};
 
 function moduleLoaderShell(body) {
   return `window.__ModuleLoader__.load({
@@ -69,7 +45,7 @@ async function main() {
     external: ['react', 'react/jsx-runtime', 'react-dom', 'react-dom/client'],
     write: false,
     logLevel: 'warning',
-    plugins: [UI_STUB],
+    loader: { '.css': 'text' },
   });
 
   const raw = result.outputFiles?.[0]?.text ?? '';

@@ -2,7 +2,7 @@
 
 适用范围：Windows、已安装并至少启动过一次的 DeepSeek Harness 桌面版，附带 CLI 版本 `0.2.1-rc.5`。QiaoDoc 内部包名仍为 `qiaodoc-dsh`。其他宿主版本和平台未纳入这轮试用。
 
-当前工作区版本为 `1.2.0-dev.5`；下面是发行前核查后的使用步骤，不表示已有公开下载资产。原固定标签 `acceptance-1.2.0-dev.2` 不移动。
+当前工作区候选为 `1.2.0-dev.7`，本地检查通过、用户桌面验收待完成；下面是发行前核查后的使用步骤，不表示已有公开下载资产。原固定标签 `acceptance-1.2.0-dev.2` 不移动，不覆盖历史验收归档。
 
 ## 取得安装包
 
@@ -27,7 +27,7 @@ npm pack --ignore-scripts --pack-destination .\release\manual
 
 ```powershell
 $dshCli = 'C:\你的DSH安装目录\resources\runtime\cli\bin\dsh.cmd'
-$packageFile = 'C:\下载目录\qiaodoc-dsh-1.2.0-dev.5.tgz'
+$packageFile = 'C:\下载目录\qiaodoc-dsh-1.2.0-dev.7.tgz'
 & $dshCli --version
 # 上面应为 0.2.1-rc.5；不同版本先停止。
 

@@ -22,10 +22,6 @@ const CLIENT_ID = 'qiaodoc-dsh';
 const STAGE = path.join(ROOT, 'build');
 
 const dev = process.argv.includes('--dev');
-/** 引导构建：用 /tmp/qmr-bootstrap 里的桩件替换 UI 层，只为先验证安装与 Slot 注册。 */
-const bootstrap = process.argv.includes('--bootstrap');
-const BOOTSTRAP_DIR = '/tmp/qmr-bootstrap';
-
 // pdf.js 句号截断修复（对照原版 4.2.4）：client 从 node_modules 打包，
 // npm install 会还原补丁，所以每次构建前重打（幂等）。
 await import('./patch-pdfjs.mjs');
@@ -43,27 +39,6 @@ const HOST_EXTERNAL = [
 
 /** 客户端半的 external：只有平台种子表里的模块可以外部化，其余必须内联。 */
 const CLIENT_EXTERNAL = ['react', 'react/jsx-runtime', 'react-dom', 'react-dom/client'];
-
-/** 引导模式的替换插件：把 ../ui/* 映射到桩目录。 */
-const bootstrapPlugin = {
-  name: 'qmr-bootstrap-ui',
-  setup(pluginBuild) {
-    pluginBuild.onResolve({ filter: /\.\.\/ui\// }, (args) => {
-      const name = path.basename(args.path);
-      return { path: path.join(BOOTSTRAP_DIR, name), namespace: 'qmr-bootstrap' };
-    });
-    pluginBuild.onLoad({ filter: /.*/, namespace: 'qmr-bootstrap' }, async (args) => {
-      try {
-        return { contents: await readFile(args.path, 'utf8'), loader: 'js' };
-      } catch {
-        return {
-          contents: 'export default function Missing() { return null; } export function ReaderOverlay() { return null; } export function createUiStore() { const s = {}; return { get: () => s, set: () => {}, subscribe: () => () => {}, select: (f) => f(s) }; }',
-          loader: 'js',
-        };
-      }
-    });
-  },
-};
 
 /** 把 esbuild 的 CJS 产物包进 DSH 的懒加载工厂外壳。 */
 function moduleLoaderShell(body) {
@@ -132,7 +107,6 @@ async function buildClient() {
     logLevel: 'warning',
     loader: { '.css': 'text' },
     sourcemap: false,
-    plugins: bootstrap ? [bootstrapPlugin] : [],
   });
   // 第二步：包进 DSH 懒加载工厂外壳。分两步做是为了确定性——
   // 不再依赖 esbuild 插件钩子与写盘的时序。

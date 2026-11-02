@@ -1,8 +1,8 @@
 /**
  * 客户端数据面：把「宿主半的持久化」与「浏览器本地缓存」合成一个数据源，
- * 并以 UI 能直接消费的形状暴露书库、单本状态与阅读引擎。
+ * 保留旧状态与文件兼容；当前界面通过 createDocumentData 使用文档接口。
  *
- * 关键设计：**内置公版书永远在册**，即使宿主半不可用、即使浏览器缓存被清空。
+ * 目录只来自用户已有数据，不再补入示例书或用示例元数据覆盖用户副本。
  * 用户导入的书先落宿主（有文件系统时），失败再退化为仅浏览器缓存。
  */
 import {
@@ -18,7 +18,6 @@ import {
   removeHighlight,
   updateHighlightNote,
 } from '../core/state.js';
-import { STARTER_BOOKS, decodeStarterBook, starterCatalog } from '../../media/starter-books.js';
 import { toMarkdown } from '../ui/format.js';
 import { formatOf, TEXT_FORMATS, BOOK_FORMATS } from './text-formats.js';
 import {
@@ -65,29 +64,6 @@ function bookIdOf(bytes) {
   return `c${h1.toString(16).padStart(8, '0')}${h2.toString(16).padStart(8, '0')}`;
 }
 
-/** 把内置书元数据变成 UI 需要的书本记录。 */
-function starterBookRecord(meta) {
-  return {
-    id: meta.id,
-    title: meta.title,
-    author: meta.author,
-    format: 'epub',
-    file: null,
-    bytes: meta.bytes,
-    cover: meta.cover ?? null,
-    addedAt: 0,
-    openedAt: null,
-    source: 'starter',
-    language: meta.language,
-    chapterCount: meta.chapterCount,
-    identifier: meta.identifier,
-    builtin: true,
-  };
-}
-
-/** 内置书 id 集合，避免用户导入的同名文件被当成内置书。 */
-const STARTER_BY_ID = new Map(STARTER_BOOKS.map((book) => [book.id, book]));
-
 /**
  * 客户端数据面。
  *
@@ -130,7 +106,7 @@ export function createDataLayer(options = {}) {
     host = api;
     const cached = normalizeLibrary(await loadLocalLibrary().catch(() => null));
     const candidates = new Map([...cached.books, ...(cached.removedBooks || []), ...library.books, ...(library.removedBooks || [])]
-      .filter((book) => book && !STARTER_BY_ID.has(book.id) && (book.source === 'local' || book.source === 'local-offline'))
+      .filter((book) => book && (book.source === 'local' || book.source === 'local-offline'))
       .map((book) => [book.id, book]));
     for (const book of candidates.values()) {
       try {
@@ -162,27 +138,7 @@ export function createDataLayer(options = {}) {
     return refreshLibrary();
   }
 
-  /** 把内置书合并进库：内置书始终在前，且不被用户导入的副本覆盖。 */
-  function mergeStarter(catalog) {
-    const starters = starterCatalog().map(starterBookRecord);
-    const starterIds = new Set(starters.map((book) => book.id));
-    // 用户库里如果存在与内置书同 identifier 的记录，视为同一本书，用内置元数据为准，
-    // 但保留用户的 openedAt / addedAt，这样「继续阅读」不丢。
-    const userBooks = catalog.books.filter((book) => {
-      if (starterIds.has(book.id)) return false;
-      if (typeof book.identifier === 'string' && book.identifier.startsWith('urn:qbr:starter:')) return false;
-      return true;
-    });
-    const decorated = starters.map((book) => {
-      const previous = catalog.books.find((entry) => entry.id === book.id);
-      return previous === undefined
-        ? book
-        : { ...book, openedAt: previous.openedAt ?? null, addedAt: previous.addedAt || book.addedAt };
-    });
-    return normalizeLibrary({ ...catalog, books: [...decorated, ...userBooks] });
-  }
-
-  /** 首次加载：宿主优先，客户端缓存兜底，最后叠加内置书。 */
+  /** 首次加载：宿主优先，客户端缓存兜底，不按旧示例标识筛除用户文件。 */
   async function refreshLibrary() {
     setStatus('loading');
     const sessionAliases = library.bookAliases || {};
@@ -205,10 +161,10 @@ export function createDataLayer(options = {}) {
     const remoteIds = new Set(remoteBooks.map((book) => book.id));
     const localOnly = Array.isArray(cached?.books) ? cached.books.filter((book) =>
       book && (book.source === 'local' || book.source === 'local-offline')
-      && !STARTER_BY_ID.has(book.id) && !remoteIds.has(book.id) && !migratedLocalIds.has(book.id)) : [];
+      && !remoteIds.has(book.id) && !migratedLocalIds.has(book.id)) : [];
     const localRemoved = (cached?.removedBooks || []).filter(book => ['local', 'local-offline'].includes(book.source) && !migratedLocalIds.has(book.id));
     const source = fetched ? { ...fetched, books: [...remoteBooks, ...localOnly], removedBooks: [...(fetched.removedBooks || []), ...localRemoved] } : cached ?? null;
-    library = mergeStarter(normalizeLibrary(source));
+    library = normalizeLibrary(source);
     library.bookAliases = { ...(cached?.bookAliases || {}), ...sessionAliases, ...(source?.bookAliases || {}) };
     for (const book of [...library.books, ...(library.removedBooks || [])]) {
       for (const alias of book.aliases || []) library.bookAliases[alias] = book.id;
@@ -260,16 +216,14 @@ export function createDataLayer(options = {}) {
  * 取书籍字节，按确定性回退链：
  *   1. 本次会话已解析的引擎（内存）
  *   2. 浏览器字节缓存（用户导入的书主要靠它）
- *   3. 内置公版书（随 bundle 内联，永远可用）
- *   4. 宿主半（有宿主时才有，且返回的是最新版本）
+ *   3. 宿主半（有宿主时才有）
+ * 没有真实文件或缓存的旧示例记录不再提供内联正文；不删除其状态或记录。
  */
   async function loadBookBytes(bookId) {
     const cached = engines.get(bookId);
     if (cached !== undefined) return cached.bytes;
     const local = await loadCachedBytes(bookId).catch(() => undefined);
     if (local !== undefined) return local;
-    const starter = STARTER_BY_ID.get(bookId);
-    if (starter !== undefined) return decodeStarterBook(starter);
     if (host !== null) {
       const result = await host.readBookBytes(bookId);
       if (typeof result?.base64 !== 'string') throw new Error('宿主没有返回书籍内容');
@@ -436,7 +390,6 @@ export function createDataLayer(options = {}) {
 
   /** Remove membership only; a failed host operation leaves the local book intact. */
   async function removeBook(bookId) {
-    if (STARTER_BY_ID.has(bookId)) return { ok: false, error: '内置书不能删除' };
     const book = library.books.find(entry => entry.id === bookId);
     if (!book) return { ok: false, error: '书库中没有这本书' };
     await pendingStateWrites.get(bookId);
@@ -568,5 +521,17 @@ export function createDataLayer(options = {}) {
       if (!states.has(bookId)) states.set(bookId, createBookState(bookId));
       return states.get(bookId);
     },
+  };
+}
+
+/** 当前对话文档使用的最小数据入口；旧状态/解析能力留在兼容层逐步退出。 */
+export function createDocumentData(options = {}) {
+  const data = createDataLayer(options);
+  return {
+    setHost: data.setHost,
+    getHost: data.getHost,
+    getLibrary: data.getLibrary,
+    refreshLibrary: data.refreshLibrary,
+    importBook: data.importBook,
   };
 }

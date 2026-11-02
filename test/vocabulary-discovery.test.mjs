@@ -3,8 +3,6 @@ import assert from 'node:assert/strict';
 import { readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { vocabularyEntry, upsertVocabulary, vocabularyMarkdown, latestLookupAnswer } from '../src/core/vocabulary.js';
-import { libraryWindow } from '../src/core/library-window.js';
-import { percentLocation } from '../src/core/location.js';
 import { parseCatalog, epubUrl, downloadBook } from '../src/host/discovery.js';
 import { sendAnkiEntry } from '../src/host/anki.js';
 import { hostHarness } from './host-harness.mjs';
@@ -53,16 +51,6 @@ test('catalogue filters external IDs/URLs and downloads reject invalid EPUB byte
   assert.equal(epubUrl('<feed><link type="application/epub+zip" rel="http://opds-spec.org/acquisition" href="https://evil.example/ebooks/11.epub"/></feed>', '11'), undefined);
   const detail = '<feed><link type="application/epub+zip" rel="http://opds-spec.org/acquisition" href="/ebooks/11.epub3.images"/></feed>';
   await assert.rejects(downloadBook('11', async url => new Response(url.endsWith('.opds') ? detail : 'not a zip')), /ZIP|zip/);
-});
-
-test('large library window stays bounded at start/middle/end and percentages include chapter offset', () => {
-  for (const scroll of [0, 80000, 99999999]) {
-    const range = libraryWindow(10000, scroll, 800);
-    assert.ok(range.end - range.start <= 22);
-    assert.equal(range.before + (range.end - range.start) * 80 + range.after, 800000);
-  }
-  assert.deepEqual(percentLocation(0.25, 10), { chapterIndex: 2, scroll: 0.5 });
-  assert.deepEqual(percentLocation(1, 10), { chapterIndex: 9, scroll: 1 });
 });
 
 test('damaged index blocks mutation and preserves original evidence', async () => {

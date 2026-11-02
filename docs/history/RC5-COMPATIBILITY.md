@@ -1,5 +1,7 @@
 # DeepSeek Harness rc.5 compatibility
 
+> 历史归档（2026-11-02）：保留上游阶段的版本、环境与结论，不代表当前 QiaoDoc 功能或安装步骤。当前资料见 [维护文档](../README.md)，历史路径说明见 [归档索引](README.md)。
+
 日期：2026-10-31。插件版本：1.1.2。目标宿主：官方 `0.2.1-rc.5`（npm latest/next）。
 
 ## 变更 / Changes
