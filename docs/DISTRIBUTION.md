@@ -2,7 +2,7 @@
 
 更新日期：2026-11-02。
 
-当前发行准备版本为 `v1.2.0-dev.7`：已退出内置示例书，87 项本地检查通过，桌面已更新且用户反馈基本合适。发行状态和附件以 [该版本 Release 页面](https://github.com/4444Hao/qiaodoc-dsh/releases/tag/v1.2.0-dev.7) 为准；本次按预发行准备，不声明稳定版。B1 状态见 [阶段记录](SLIMMING-AUDIT-B1.md)。
+`v1.2.0-dev.7` 已于北京时间 2026-11-02 18:58 发布为 [GitHub 预发行](https://github.com/4444Hao/qiaodoc-dsh/releases/tag/v1.2.0-dev.7)，源码标签指向 `a20cfd8`。tgz 与 SHA256SUMS 已公开下载核对，18 文件安装包为 2,193,225 字节。已退出内置示例书，87 项本地检查通过，桌面已更新且用户反馈基本合适；不声明稳定版。B1 状态见 [阶段记录](SLIMMING-AUDIT-B1.md)。
 
 - 独立仓库：[4444Hao/qiaodoc-dsh](https://github.com/4444Hao/qiaodoc-dsh)。
 - 固定验收标签 `acceptance-1.2.0-dev.2` 保持不变；本项目尚无稳定版、npm 包或市场条目，dev.7 单独作为预发行。
