@@ -53,8 +53,8 @@
 
 当前为开发试用版，仅验证 **Windows · DeepSeek Harness 0.2.1-rc.5**。内部安装包名为 `qiaodoc-dsh`。
 
-1. 从 [GitHub Releases](https://github.com/4444Hao/qiaodoc-dsh/releases) 的 **Assets** 下载对应版本的 `.tgz` 安装包和 `SHA256SUMS`。附件随发行提供；没有安装包的版本暂不可按此方式安装。
-2. 保存草稿并完全退出 DSH，包括托盘。按实际位置替换下面两个路径，在 PowerShell 中安装：
+1. 从 [v1.2.0-dev.7 发行页面](https://github.com/4444Hao/qiaodoc-dsh/releases/tag/v1.2.0-dev.7) 的 **Assets** 下载 `qiaodoc-dsh-1.2.0-dev.7.tgz` 和 `SHA256SUMS`。
+2. 下载1.后，完全退出 DSH，包括托盘。在 PowerShell 中执行如下内容：
 
 ```powershell
 $dshCli = 'D:\dsh-desktop\resources\runtime\cli\bin\dsh.cmd'
@@ -62,7 +62,7 @@ $packageFile = 'C:\下载目录\qiaodoc-dsh-1.2.0-dev.7.tgz'
 & $dshCli plugin --profile desktop add $packageFile
 ```
 
-3. 重新打开 DSH，在当前对话点击“打开原文”开始使用。更新时安装新版 `.tgz` 后重开即可。
+3. 重新打开 DSH，确认对话中出现“打开原文”、左侧出现“文档历史”，即可开始使用。更新时安装新版 `.tgz` 后重开即可。
 
 详细安装与回退见 [安装说明](docs/INSTALLATION.md)。
 
