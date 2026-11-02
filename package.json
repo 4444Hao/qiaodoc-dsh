@@ -16,6 +16,7 @@
   },
   "icon": "./icon.svg",
   "files": [
+    "README.en.md",
     "client.js",
     "cordis.patch.yml",
     "icon.svg",

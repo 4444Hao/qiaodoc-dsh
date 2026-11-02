@@ -14,6 +14,7 @@
 | [截图与素材索引](qa/README.md) | 当前展示、早期验证和上游截图的保留用途 |
 | [每轮本地测试工作流](LOCAL-TEST-WORKFLOW.md) | 常用命令、隔离安装、可见测试窗口、自动回归与报告位置 |
 | [安装与试用说明](INSTALLATION.md) | 首次安装、现有安装更新、CLI 路径配置、前置条件与回退边界 |
+| [Release 附件准备](RELEASE-PREPARATION.md) | 手动生成最终 tgz 与 SHA256SUMS、准备预发行草稿和下载核对 |
 | [视觉标识说明](BRANDING.md) | 文档三叶 Logo、工具条配色、SVG/PNG 素材与设计预览边界 |
 | [对话与原文工作区改造](CONVERSATION-READER-PLAN.md) | 已讨论的产品方向、建议数据关系、接口证据、实施阶段及验收条件 |
 | [Windows 开发准备](WINDOWS-DEVELOPMENT.md) | 本地基线、工具、隔离环境、打包问题与恢复方法 |

@@ -1,5 +1,7 @@
 # 乔豆文解 · QiaoDoc for DeepSeek Harness
 
+**简体中文** | [English](README.en.md)
+
 在 DeepSeek Harness 当前对话旁打开文档，边阅读、边翻译、边提问。
 
 参考豆包网页版的分屏阅读体验，保留 Harness 原生会话。支持 PDF、TXT、Markdown 和 HTML 预览，也可将粘贴文字保存为 TXT 或 Markdown 后阅读。
@@ -51,7 +53,18 @@
 
 当前为开发试用版，仅验证 **Windows · DeepSeek Harness 0.2.1-rc.5**。内部安装包名为 `qiaodoc-dsh`。
 
-源码构建、首次安装、更新与回退见 [安装说明](docs/INSTALLATION.md)。安装或更新后，请完全退出 DSH（包括托盘）并重新打开。
+1. 从 [GitHub Releases](https://github.com/4444Hao/qiaodoc-dsh/releases) 的 **Assets** 下载对应版本的 `.tgz` 安装包和 `SHA256SUMS`。附件随发行提供；没有安装包的版本暂不可按此方式安装。
+2. 保存草稿并完全退出 DSH，包括托盘。按实际位置替换下面两个路径，在 PowerShell 中安装：
+
+```powershell
+$dshCli = 'D:\dsh-desktop\resources\runtime\cli\bin\dsh.cmd'
+$packageFile = 'C:\下载目录\qiaodoc-dsh-1.2.0-dev.7.tgz'
+& $dshCli plugin --profile desktop add $packageFile
+```
+
+3. 重新打开 DSH，在当前对话点击“打开原文”开始使用。更新时安装新版 `.tgz` 后重开即可。
+
+详细安装与回退见 [安装说明](docs/INSTALLATION.md)。
 
 ## 已知限制
 
