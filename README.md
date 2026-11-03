@@ -66,6 +66,10 @@ $packageFile = 'C:\下载目录\qiaodoc-dsh-1.2.0-dev.7.tgz'
 
 详细安装与回退见 [安装说明](docs/INSTALLATION.md)。
 
+## 插件市场
+
+已收录至 Awesome DSH Plugin 社区目录：[查看收录记录](https://github.com/awesome-dsh-plugin/awesome-dsh-plugin/pull/11379)。桌面市场的展示与安装版本以客户端实际同步结果为准。
+
 ## 已知限制
 
 - HTML 支持预览，但渲染页面内的选段 AI 菜单暂不可用。

@@ -32,7 +32,7 @@ export const LIBRARY_FOLDER = '乔木阅读';
 const STATE_VERSION = 1;
 const LIBRARY_VERSION = 1;
 
-export const name = 'qiaomu-reader';
+export const name = 'qiaodoc-dsh';
 
 /** 全部按可选服务注入：缺任何一个都不该让整个 profile 起不来。 */
 export const inject = ['tools', 'commands', 'sessions'];
@@ -54,7 +54,7 @@ const CONFIG_KEYS = ['folder', 'workspaceRoot'];
 export const Config = {
   '~standard': {
     version: 1,
-    vendor: 'qiaomu-reader',
+    vendor: 'qiaodoc-dsh',
     validate(value) {
       const issues = [];
       if (value === undefined || value === null) return { value: {} };
@@ -732,7 +732,7 @@ export function apply(ctx, config = {}) {
       },
       presentCall: () => ({ card: 'generic', kind: 'read', title: '乔木阅读 · 书库' }),
     });
-  }, 'qiaomu-reader: reader_library 工具');
+  }, 'qiaodoc-dsh: reader_library 工具');
 
   /* ---- 人类命令 ---- */
 
@@ -775,7 +775,7 @@ export function apply(ctx, config = {}) {
         }
       },
     });
-  }, 'qiaomu-reader: /reader 命令');
+  }, 'qiaodoc-dsh: /reader 命令');
 
   /* ---- 生命周期日志 ---- */
 
@@ -784,7 +784,7 @@ export function apply(ctx, config = {}) {
     return () => {
       // In-flight writes retain their ordering until their own finally handlers run.
     };
-  }, 'qiaomu-reader: 生命周期');
+  }, 'qiaodoc-dsh: 生命周期');
   return api;
 }
 
@@ -793,7 +793,7 @@ export default class ReaderService extends TypertRemoteService {
   static inject = inject;
 
   constructor(ctx, config = {}) {
-    super(ctx, 'qiaomuReader');
+    super(ctx, 'qiaoDoc');
     this.api = apply(ctx, config);
     this.companionContexts = new Map();
     ctx.inject(['sessionQuery'], (scope) => {
@@ -801,7 +801,7 @@ export default class ReaderService extends TypertRemoteService {
         const creator = request => createPastedDocument(scope, request);
         this.pastedDocumentCreator = creator;
         return () => { if (this.pastedDocumentCreator === creator) this.pastedDocumentCreator = null; };
-      }, 'qiaomu-reader: pasted workspace documents');
+      }, 'qiaodoc-dsh: pasted workspace documents');
     });
     ctx.inject(['sessionQuery', 'attachments'], (scope) => {
       scope.effect(() => {
@@ -810,11 +810,11 @@ export default class ReaderService extends TypertRemoteService {
         }));
         this.sessionDocumentImporter = importer;
         return () => { if (this.sessionDocumentImporter === importer) this.sessionDocumentImporter = null; };
-      }, 'qiaomu-reader: verified session documents');
+      }, 'qiaodoc-dsh: verified session documents');
     });
     ctx.inject(['systemPrompt'], (scope) => {
       scope.systemPrompt.context({
-        name: 'qiaomu-reader:reading', order: 9500, interpolate: false,
+        name: 'qiaodoc-dsh:reading', order: 9500, interpolate: false,
         text: ({ agent }) => this.companionContexts.get(agent?.session?.id)?.text || '',
       });
     });

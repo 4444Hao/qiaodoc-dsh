@@ -1,5 +1,15 @@
 # 维护记录
 
+## 2026-11-03：dev.8 独立运行标识与市场栏目
+
+本轮仅独立运行标识：cordis.patch.yml 行 ID、宿主 name/vendor、客户端面板/动作/locale 前缀改为 qiaodoc-dsh；Remote 服务、描述符、注入和调用同步为 qiaoDoc。源码与锁文件版本升为未发布候选 1.2.0-dev.8，不覆盖已发布 dev.7。中文版 README 仅增加“插件市场”短栏，链接已合并的 #11379；现有下载仍指向公开 dev.7。
+
+数据目录“乔木阅读”、浏览器数据库 qiaomu-reader、qmr: 缓存键、文件路径、历史与状态格式均保留；不迁移或清空用户数据。reader_library、/reader 及 Ctrl+Shift+R 未改，仍不承诺与上游同时启用。旧行 ID 的用户自定义配置不会自动转移到新行，定制安装需另核对；本轮没有改写日用 profile。
+
+验证：npm run check 构建、88 项测试（0 失败、0 跳过）及 18 文件包校验通过。激活测试覆盖新面板/locale 标识与完整 Remote 描述符；新增 Remote 回归使用协议桩和真实临时文件，确认只调用 qiaoDoc 并沿用旧数据目录。它不是实机 Typert/桌面升级验收，后续由用户桌面体验确认。旧数据恢复与导入测试继续通过。
+
+日志：release/dev/reports/identity-dev8-check.log；本轮文件回退快照由 release/dev/id-change-current.json 指向，包含修改前文件及摘要。本轮未启动浏览器、未更新或重启桌面、未执行 Git 写入、发布或修改市场条目。市场仍安装 dev.7，其原有冲突说明不能因本地 dev.8 改动直接删除。
+
 ## 2026-11-02：dev.7 GitHub 预发行已发布
 
 北京时间 18:58 完成 https://github.com/4444Hao/qiaodoc-dsh/releases/tag/v1.2.0-dev.7 。本次授权范围内提交并推送 a20cfd8，创建同名新标签；先创建发行草稿，上传 qiaodoc-dsh-1.2.0-dev.7.tgz（2,193,225 字节、18 文件）与 SHA256SUMS，再发布为 Pre-release。两项附件均通过正式公开 URL 匿名下载并核对 SHA-256，无需登录即可取得。标签保持指向 a20cfd8，本记录作为后续文档提交，不移动发行标签。

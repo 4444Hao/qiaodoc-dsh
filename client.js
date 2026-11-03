@@ -111903,7 +111903,7 @@ function createDocumentData(options = {}) {
 // src/client/host-api.js
 function remoteHostApi(ctx) {
   const call = async (name, request) => {
-    const method = ctx.remote?.qiaomuReader?.[name];
+    const method = ctx.remote?.qiaoDoc?.[name];
     if (typeof method !== "function") throw new Error("\u4E54\u6728\u9605\u8BFB\u5BBF\u4E3B\u4E66\u5E93\u672A\u5C31\u7EEA");
     const result = request === void 0 ? await method() : await method(request);
     if (result?.ok) return result.value;
@@ -112844,25 +112844,25 @@ function installDocumentReader(ctx, data, history) {
       style.textContent = DOCUMENT_STYLES;
       document.head.appendChild(style);
       return () => style.remove();
-    }, "qiaomu-reader: document action styles");
+    }, "qiaodoc-dsh: document action styles");
     scope.effect(() => scope.slots.inject("sidebar.right.tab.document.actions", () => scope.slots.register({
       name: "sidebar.right.tab.document.actions",
-      id: "qiaomu-reader.selection",
-      locale: "qiaomu-reader",
+      id: "qiaodoc-dsh.selection",
+      locale: "qiaodoc-dsh",
       inject: () => ({ documentTitle, getBinding, history, captureTarget: (element) => scope.sidebarRight.commandTarget(element), targetCurrent: (target) => scope.sidebarRight.isTargetCurrent(target) })
-    }, (props) => h(React3.Fragment, null, h(SelectionActions, props), h(DocumentHistoryTracker, props)))), "qiaomu-reader: native document selection");
+    }, (props) => h(React3.Fragment, null, h(SelectionActions, props), h(DocumentHistoryTracker, props)))), "qiaodoc-dsh: native document selection");
     scope.effect(() => scope.slots.inject("conversation.session.header.utilities", () => scope.slots.register({
       name: "conversation.session.header.utilities",
-      id: "qiaomu-reader.open-document",
-      locale: "qiaomu-reader",
+      id: "qiaodoc-dsh.open-document",
+      locale: "qiaodoc-dsh",
       inject: () => ({ openFile, openAttachment, savePaste, history })
-    }, DocumentLauncher)), "qiaomu-reader: conversation document entry");
+    }, DocumentLauncher)), "qiaodoc-dsh: conversation document entry");
     scope.effect(() => scope.slots.inject("conversation.hero.options", () => scope.slots.register({
       name: "conversation.hero.options",
-      id: "qiaomu-reader.open-document-hero",
-      locale: "qiaomu-reader",
+      id: "qiaodoc-dsh.open-document-hero",
+      locale: "qiaodoc-dsh",
       inject: () => ({ openFile, openAttachment, savePaste, history })
-    }, (props) => props.sessionId ? h(DocumentLauncher, props) : null)), "qiaomu-reader: blank conversation document entry");
+    }, (props) => props.sessionId ? h(DocumentLauncher, props) : null)), "qiaodoc-dsh: blank conversation document entry");
   });
 }
 
@@ -112983,7 +112983,7 @@ var READER_REMOTE_METHODS = [
 ];
 
 // src/client/index.js
-var ID = "qiaomu-reader";
+var ID = "qiaodoc-dsh";
 var remoteCodec = () => ({
   mode: "strict",
   typeSymbol: "qiaodoc-dsh#json",
@@ -112992,9 +112992,9 @@ var remoteCodec = () => ({
 var REMOTE = {
   package: "qiaodoc-dsh",
   descriptors: READER_REMOTE_METHODS.map((method) => ({
-    id: `qiaodoc-dsh#qiaomuReader/${method}`,
-    service: "qiaomuReader",
-    namespace: "qiaomuReader",
+    id: `qiaodoc-dsh#qiaoDoc/${method}`,
+    service: "qiaoDoc",
+    namespace: "qiaoDoc",
     method,
     invocation: { kind: "direct" },
     parameters: ["info", "library", "speechVoices", "documentHistory"].includes(method) ? [] : [{ name: "request", wire: "request", source: "json", codec: remoteCodec() }],
@@ -113010,7 +113010,7 @@ function apply(ctx) {
   let translate = (key) => HISTORY_MESSAGES.zh[key] || key;
   ctx.effect(() => () => {
     disposed = true;
-  }, "qiaomu-reader: lifetime");
+  }, "qiaodoc-dsh: lifetime");
   installDocumentReader(ctx, data, history);
   ctx.inject(["uiWorkspace", "uiSession", "sidebarRight", "sessions", "resources"], (scope) => history.bind(scope));
   const close = () => ctx.layout.selectPanel(null);
@@ -113019,13 +113019,13 @@ function apply(ctx) {
     key: ID,
     locale: ID,
     inject: () => ({ history, close })
-  }, DocumentHistoryPanel)), "qiaomu-reader: document history");
+  }, DocumentHistoryPanel)), "qiaodoc-dsh: document history");
   ctx.effect(() => ctx.slots.inject("sidebar.panellist", () => ctx.slots.register({
     name: "sidebar.panellist",
     id: ID,
     order: 40,
     label: () => translate("open")
-  }, DocumentIcon)), "qiaomu-reader: history entry");
+  }, DocumentIcon)), "qiaodoc-dsh: history entry");
   ctx.effect(() => {
     const keydown = (event) => {
       if (!(event.metaKey || event.ctrlKey) || !event.shiftKey || !["R", "r"].includes(event.key)) return;
@@ -113036,7 +113036,7 @@ function apply(ctx) {
     };
     globalThis.addEventListener?.("keydown", keydown, true);
     return () => globalThis.removeEventListener?.("keydown", keydown, true);
-  }, "qiaomu-reader: history shortcut");
+  }, "qiaodoc-dsh: history shortcut");
   ctx.inject(["locale"], (scope) => {
     const dispose = scope.locale.register(ID, {
       zh: { ...HISTORY_MESSAGES.zh, ...DOCUMENT_MESSAGES.zh },
@@ -113048,7 +113048,7 @@ function apply(ctx) {
   if (typeof ctx.remote?.$mount === "function") {
     void ctx.remote.$mount(REMOTE).then(() => {
       if (disposed) return;
-      ctx.inject(["remote.qiaomuReader"], (scope) => {
+      ctx.inject(["remote.qiaoDoc"], (scope) => {
         void data.setHost(remoteHostApi(scope)).then(() => history.load()).catch((error) => console.warn("[\u6587\u6863\u5386\u53F2] \u8FDE\u63A5\u5931\u8D25", error));
       });
     }).catch((error) => console.warn("[\u6587\u6863\u5386\u53F2] \u670D\u52A1\u6302\u8F7D\u5931\u8D25", error));

@@ -1,7 +1,7 @@
 /** Browser-to-host data API over Harness Typert Remote. */
 export function remoteHostApi(ctx) {
   const call = async (name, request) => {
-    const method = ctx.remote?.qiaomuReader?.[name];
+    const method = ctx.remote?.qiaoDoc?.[name];
     if (typeof method !== 'function') throw new Error('乔木阅读宿主书库未就绪');
     const result = request === undefined ? await method() : await method(request);
     if (result?.ok) return result.value;

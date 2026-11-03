@@ -8,5 +8,5 @@
 #
 # 也因此不能用子路径来绕开 Node 的 ESM 模块缓存；改完代码要重启宿主。
 - insert:
-    - id: qiaomu-reader
+    - id: qiaodoc-dsh
       name: 'qiaodoc-dsh'

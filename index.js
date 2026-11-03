@@ -11691,13 +11691,13 @@ function updateDocumentHistory(raw, request, now) {
 var LIBRARY_FOLDER = "\u4E54\u6728\u9605\u8BFB";
 var STATE_VERSION = 1;
 var LIBRARY_VERSION = 1;
-var name = "qiaomu-reader";
+var name = "qiaodoc-dsh";
 var inject = ["tools", "commands", "sessions"];
 var CONFIG_KEYS = ["folder", "workspaceRoot"];
 var Config = {
   "~standard": {
     version: 1,
-    vendor: "qiaomu-reader",
+    vendor: "qiaodoc-dsh",
     validate(value) {
       const issues = [];
       if (value === void 0 || value === null) return { value: {} };
@@ -12244,7 +12244,7 @@ function apply(ctx, config = {}) {
       },
       presentCall: () => ({ card: "generic", kind: "read", title: "\u4E54\u6728\u9605\u8BFB \xB7 \u4E66\u5E93" })
     });
-  }, "qiaomu-reader: reader_library \u5DE5\u5177");
+  }, "qiaodoc-dsh: reader_library \u5DE5\u5177");
   ctx.effect(() => {
     const commands = ctx.get("commands");
     if (commands === void 0) return () => {
@@ -12290,18 +12290,18 @@ ${clip(result.markdown, 4e3)}` };
         }
       }
     });
-  }, "qiaomu-reader: /reader \u547D\u4EE4");
+  }, "qiaodoc-dsh: /reader \u547D\u4EE4");
   ctx.effect(() => {
     ctx.logger?.info?.("\u4E54\u6728\u9605\u8BFB\u5DF2\u5C31\u7EEA\uFF1A\u4E66\u5E93\u76EE\u5F55\u5C06\u5728\u9996\u6B21\u4F7F\u7528\u65F6\u89E3\u6790");
     return () => {
     };
-  }, "qiaomu-reader: \u751F\u547D\u5468\u671F");
+  }, "qiaodoc-dsh: \u751F\u547D\u5468\u671F");
   return api;
 }
 var ReaderService = class extends TypertRemoteService {
   static inject = inject;
   constructor(ctx, config = {}) {
-    super(ctx, "qiaomuReader");
+    super(ctx, "qiaoDoc");
     this.api = apply(ctx, config);
     this.companionContexts = /* @__PURE__ */ new Map();
     ctx.inject(["sessionQuery"], (scope) => {
@@ -12311,7 +12311,7 @@ var ReaderService = class extends TypertRemoteService {
         return () => {
           if (this.pastedDocumentCreator === creator) this.pastedDocumentCreator = null;
         };
-      }, "qiaomu-reader: pasted workspace documents");
+      }, "qiaodoc-dsh: pasted workspace documents");
     });
     ctx.inject(["sessionQuery", "attachments"], (scope) => {
       scope.effect(() => {
@@ -12324,11 +12324,11 @@ var ReaderService = class extends TypertRemoteService {
         return () => {
           if (this.sessionDocumentImporter === importer) this.sessionDocumentImporter = null;
         };
-      }, "qiaomu-reader: verified session documents");
+      }, "qiaodoc-dsh: verified session documents");
     });
     ctx.inject(["systemPrompt"], (scope) => {
       scope.systemPrompt.context({
-        name: "qiaomu-reader:reading",
+        name: "qiaodoc-dsh:reading",
         order: 9500,
         interpolate: false,
         text: ({ agent }) => this.companionContexts.get(agent?.session?.id)?.text || ""

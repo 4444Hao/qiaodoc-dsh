@@ -6,9 +6,10 @@ import path from 'node:path';
 const result = await build({ entryPoints: ['src/host/index.js'], bundle: true, write: false, format: 'esm', platform: 'node',
   external: ['pdfjs-dist/*'], plugins: [{ name: 'remote-contract', setup(b) {
     b.onResolve({ filter: /^@deepseek-ai\/dsh-typert-protocol$/ }, () => ({ path: 'remote', namespace: 'stub' }));
-    b.onLoad({ filter: /.*/, namespace: 'stub' }, () => ({ contents: 'export class TypertRemoteService {} export const Remote = () => () => {};' }));
+    b.onLoad({ filter: /.*/, namespace: 'stub' }, () => ({ contents: 'export class TypertRemoteService { constructor(_ctx, namespace) { this.remoteNamespace = namespace; } } export const Remote = () => () => {};' }));
   } }] });
-const { apply } = await import(`data:text/javascript;base64,${Buffer.from(result.outputFiles[0].text).toString('base64')}`);
+const { apply, default: ReaderService, name, LIBRARY_FOLDER } = await import(`data:text/javascript;base64,${Buffer.from(result.outputFiles[0].text).toString('base64')}`);
+export { ReaderService, name, LIBRARY_FOLDER };
 export async function hostHarness() {
   const root = await mkdtemp(path.join(tmpdir(), 'qmr-host-'));
   let tool;

@@ -27,7 +27,11 @@ function harness() {
     panelInfo: { getSnapshot: () => ({ activePanelId: null }) },
   }], ['slots', {
     inject(_name, callback) { return callback(); },
-    register({ name }) { slots.add(name); return () => slots.delete(name); },
+    register({ name, id, key, locale }) {
+      assert.equal(id || key, 'qiaodoc-dsh');
+      if (locale) assert.equal(locale, 'qiaodoc-dsh');
+      slots.add(name); return () => slots.delete(name);
+    },
   }]]);
   const disposers = [];
   const pending = [];
@@ -88,7 +92,7 @@ for (const timing of ['before', 'after', 'absent']) {
     assert.deepEqual([...app.slots], ['main', 'sidebar.panellist']);
     assert.ok(app.listeners.has('keydown'));
     if (timing === 'after') app.provide('locale', locale);
-    assert.equal(dictionaries.has('qiaomu-reader'), timing !== 'absent');
+    assert.equal(dictionaries.has('qiaodoc-dsh'), timing !== 'absent');
     app.dispose();
     assert.equal(dictionaries.size, 0);
     assert.equal(app.slots.size, 0);
@@ -103,6 +107,11 @@ test('client mounts Reader Remote descriptors when Harness remote is available',
   app.start();
   await Promise.resolve();
   assert.equal(descriptor.package, 'qiaodoc-dsh');
+  for (const item of descriptor.descriptors) {
+    assert.equal(item.service, 'qiaoDoc');
+    assert.equal(item.namespace, 'qiaoDoc');
+    assert.equal(item.id, `qiaodoc-dsh#qiaoDoc/${item.method}`);
+  }
   assert.equal(descriptor.descriptors.find(item => item.method === 'speechVoices').parameters.length, 0);
   assert.deepEqual(Array.from(descriptor.descriptors, (item) => item.method), [
     'info', 'library', 'importBook', 'importSessionDocument', 'removeBook', 'restoreBook', 'speechVoices', 'speechAudio', 'sendToAnki', 'searchBooks', 'downloadBook', 'loadState', 'saveState', 'readBookBytes', 'highlights', 'exportNotes', 'setReadingContext', 'documentHistory', 'recordDocumentHistory', 'createPastedDocument',

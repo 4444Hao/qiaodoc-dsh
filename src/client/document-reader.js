@@ -231,18 +231,18 @@ export function installDocumentReader(ctx, data, history) {
       if (typeof document === 'undefined') return undefined;
       const style = document.createElement('style'); style.textContent = DOCUMENT_STYLES; document.head.appendChild(style);
       return () => style.remove();
-    }, 'qiaomu-reader: document action styles');
+    }, 'qiaodoc-dsh: document action styles');
     scope.effect(() => scope.slots.inject('sidebar.right.tab.document.actions', () => scope.slots.register({
-      name: 'sidebar.right.tab.document.actions', id: 'qiaomu-reader.selection', locale: 'qiaomu-reader',
+      name: 'sidebar.right.tab.document.actions', id: 'qiaodoc-dsh.selection', locale: 'qiaodoc-dsh',
       inject: () => ({ documentTitle, getBinding, history, captureTarget: (element) => scope.sidebarRight.commandTarget(element), targetCurrent: (target) => scope.sidebarRight.isTargetCurrent(target) }),
-    }, props => h(React.Fragment, null, h(SelectionActions, props), h(DocumentHistoryTracker, props)))), 'qiaomu-reader: native document selection');
+    }, props => h(React.Fragment, null, h(SelectionActions, props), h(DocumentHistoryTracker, props)))), 'qiaodoc-dsh: native document selection');
     scope.effect(() => scope.slots.inject('conversation.session.header.utilities', () => scope.slots.register({
-      name: 'conversation.session.header.utilities', id: 'qiaomu-reader.open-document', locale: 'qiaomu-reader',
+      name: 'conversation.session.header.utilities', id: 'qiaodoc-dsh.open-document', locale: 'qiaodoc-dsh',
       inject: () => ({ openFile, openAttachment, savePaste, history }),
-    }, DocumentLauncher)), 'qiaomu-reader: conversation document entry');
+    }, DocumentLauncher)), 'qiaodoc-dsh: conversation document entry');
     scope.effect(() => scope.slots.inject('conversation.hero.options', () => scope.slots.register({
-      name: 'conversation.hero.options', id: 'qiaomu-reader.open-document-hero', locale: 'qiaomu-reader',
+      name: 'conversation.hero.options', id: 'qiaodoc-dsh.open-document-hero', locale: 'qiaodoc-dsh',
       inject: () => ({ openFile, openAttachment, savePaste, history }),
-    }, (props) => props.sessionId ? h(DocumentLauncher, props) : null)), 'qiaomu-reader: blank conversation document entry');
+    }, (props) => props.sessionId ? h(DocumentLauncher, props) : null)), 'qiaodoc-dsh: blank conversation document entry');
   });
 }
