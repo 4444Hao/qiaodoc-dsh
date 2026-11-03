@@ -16,9 +16,7 @@ These desktop screenshots demonstrate the interaction with example content. Clic
 
 Continue the conversation on the left while reading the original document independently on the right.
 
-<p align="center">
-  <a href="docs/qa/qiaodoc-split-view-v1.png"><img src="docs/qa/qiaodoc-split-view-v1.png" alt="QiaoDoc with a native conversation on the left and the original document on the right" width="840"></a>
-</p>
+![QiaoDoc with a native conversation on the left and the original document on the right](docs/qa/qiaodoc-split-view-v1.png)
 
 ### Explain, translate, or ask about a passage
 

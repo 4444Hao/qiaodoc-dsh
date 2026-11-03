@@ -8,6 +8,10 @@
 
 选段后点击“解释”或“翻译”，会将选段与来源发送到当前会话；“询问 AI”先加入草稿，由你编辑后发送。AI 使用当前会话选择的模型。
 
+## 插件市场
+
+已收录至 [dsh market](https://github.com/dsh-market/dsh-market)，可在插件市场中搜索 `qiaodoc-dsh`  安装，[查看收录页面](https://awesome-dsh-plugin.com/p/4444Hao/qiaodoc-dsh/)。
+
 ## 功能展示
 
 以下为桌面界面截图，示例内容仅用于展示交互；点击图片可查看原图。
@@ -16,9 +20,7 @@
 
 左侧继续对话，右侧独立阅读原文。
 
-<p align="center">
-  <a href="docs/qa/qiaodoc-split-view-v1.png"><img src="docs/qa/qiaodoc-split-view-v1.png" alt="QiaoDoc 左侧原生对话与右侧原文分屏展示" width="840"></a>
-</p>
+![QiaoDoc 左侧原生对话与右侧原文分屏展示](docs/qa/qiaodoc-split-view-v1.png)
 
 ### 选段翻译、解释与提问
 
@@ -66,9 +68,6 @@ $packageFile = 'C:\下载目录\qiaodoc-dsh-1.2.0-dev.7.tgz'
 
 详细安装与回退见 [安装说明](docs/INSTALLATION.md)。
 
-## 插件市场
-
-已收录至 Awesome DSH Plugin 社区目录：[查看收录记录](https://github.com/awesome-dsh-plugin/awesome-dsh-plugin/pull/11379)。桌面市场的展示与安装版本以客户端实际同步结果为准。
 
 ## 已知限制
 
